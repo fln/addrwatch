@@ -148,7 +148,11 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 
 }
 
+#if HAVE_LIBEVENT2
 void read_cb(evutil_socket_t fd, short events, void *arg)
+#else
+void read_cb(int fd, short events, void *arg)
+#endif
 {
 	struct pcap_pkthdr	header;
 	const uint8_t	*packet;
@@ -210,11 +214,16 @@ void add_iface(char *iface)
 
 	rc = pcap_fileno(ifc->pcap_handle);
 
+#if HAVE_LIBEVENT2
 	ifc->event = event_new(cfg.eb, rc, EV_READ|EV_PERSIST, read_cb, ifc);
 	if(!ifc->event)
 		log_msg(LOG_ERR, "%s: event_new(...)", __FUNCTION__);
 
 	event_add(ifc->event, NULL);
+#else
+	event_set(&ifc->event, rc, EV_READ|EV_PERSIST, read_cb, ifc);
+	event_add(&ifc->event, NULL);
+#endif
 
 	ifc->next = cfg.interfaces;
 	cfg.interfaces = ifc;
@@ -239,7 +248,9 @@ struct iface_config *del_iface(struct iface_config *ifc)
 
 	next = ifc->next;
 
+#if HAVE_LIBEVENT2
 	event_free(ifc->event);
+#endif
 	pcap_freecode(&ifc->pcap_filter);
 	pcap_close(ifc->pcap_handle);
 
@@ -254,7 +265,11 @@ struct iface_config *del_iface(struct iface_config *ifc)
 
 }
 
+#if HAVE_LIBEVENT2
 void reload_cb(evutil_socket_t fd, short events, void *arg)
+#else
+void reload_cb(int fd, short events, void *arg)
+#endif
 {
 	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, strsignal(fd));
 	log_msg(LOG_DEBUG, "Reopening output files");
@@ -266,38 +281,68 @@ void reload_cb(evutil_socket_t fd, short events, void *arg)
 	datafile_init();
 }
 
+#if HAVE_LIBEVENT2
 void stop_cb(evutil_socket_t fd, short events, void *arg)
+#else
+void stop_cb(int fd, short events, void *arg)
+#endif
 {
 	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, strsignal(fd));
+#if HAVE_LIBEVENT2
 	event_base_loopbreak(cfg.eb);
+#else
+	event_loopbreak();
+#endif
 }
 
 
 
 void libevent_init()
 {
+#if HAVE_LIBEVENT2
 	cfg.eb = event_base_new();
 
 	if (!cfg.eb)
 		log_msg(LOG_ERR, "%s: event_base_new() failed", __FUNCTION__);
+#else
+	event_init();
+#endif
 
+#if HAVE_LIBEVENT2
 	cfg.sigint_ev = event_new(cfg.eb, SIGINT, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
 	event_add(cfg.sigint_ev, NULL);
+#else
+	event_set(&cfg.sigint_ev, SIGINT, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	event_add(&cfg.sigint_ev, NULL);
+#endif
 
+#if HAVE_LIBEVENT2
 	cfg.sigterm_ev = event_new(cfg.eb, SIGTERM, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
 	event_add(cfg.sigterm_ev, NULL);
+#else
+	event_set(&cfg.sigterm_ev, SIGTERM, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	event_add(&cfg.sigterm_ev, NULL);
+#endif
 
+#if HAVE_LIBEVENT2
 	cfg.sighup_ev = event_new(cfg.eb, SIGHUP, EV_SIGNAL|EV_PERSIST, reload_cb, NULL);
 	event_add(cfg.sighup_ev, NULL);
+#else
+	event_set(&cfg.sighup_ev, SIGHUP, EV_SIGNAL|EV_PERSIST, reload_cb, NULL);
+	event_add(&cfg.sighup_ev, NULL);
+#endif
 }
 
 void libevent_close()
 {
+#if HAVE_LIBEVENT2
 	event_free(cfg.sigint_ev);
 	event_free(cfg.sigterm_ev);
 	event_free(cfg.sighup_ev);
 
 	event_base_free(cfg.eb);
+#endif
+
 }
 
 void daemonize()
@@ -382,7 +427,11 @@ int main(int argc, char *argv[])
 	datafile_init();
 
 	/* main loop */
+#if HAVE_LIBEVENT2
 	event_base_dispatch(cfg.eb);
+#else
+	event_dispatch();
+#endif
 
 	datafile_close();
 	sqlite_close();

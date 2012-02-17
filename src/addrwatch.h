@@ -25,7 +25,11 @@
 
 struct iface_config {
 	char *name;
+#if HAVE_LIBEVENT2
 	struct event *event;
+#else
+	struct event event;
+#endif
 
 	struct bpf_program pcap_filter;
 	pcap_t *pcap_handle;
@@ -58,9 +62,15 @@ struct addrwatch_config {
 #endif
 
 	struct event_base *eb;
+#if HAVE_LIBEVENT2
 	struct event *sigint_ev;
 	struct event *sigterm_ev;
 	struct event *sighup_ev;
+#else
+	struct event sigint_ev;
+	struct event sigterm_ev;
+	struct event sighup_ev;
+#endif
 
 	struct iface_config *interfaces;
 };

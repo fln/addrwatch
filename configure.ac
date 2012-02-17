@@ -9,7 +9,19 @@ AC_PROG_INSTALL
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live])
-AC_CHECK_LIB([event], [event_base_dispatch])
+#AC_CHECK_LIB([event], [event_base_dispatch])
+AC_CHECK_LIB([event], [event_new], [
+	LIBS="$LIBS -levent"
+	AC_DEFINE([HAVE_LIBEVENT], 1, [Define to 1 if you have the event library (-levent).])
+	AC_DEFINE([HAVE_LIBEVENT2], 1, [Define to 1 if you have libevent2])
+], [
+	AC_CHECK_LIB([event], [event_dispatch],[
+		LIBS="$LIBS -levent"
+		AC_DEFINE([HAVE_LIBEVENT], 1, [Define to 1 if you have the event library (-levent).])
+	],[
+		AC_MSG_ERROR([Please install libevent-1.4 or libevent-2.0])
+	])
+])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h stdint.h stdlib.h syslog.h unistd.h])
