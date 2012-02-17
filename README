@@ -1,6 +1,68 @@
 = addrwatch =
 
-A clone of arpwatch with additional stuff:
-*) IPv6 support
-*) Multiple interfaces per daemon
-*) sqlite storage option
+This is a similar software to arpwatch. It main purpose is to monitor network
+and log ethernet/ip pairings.
+
+Main features of addrwatch:
+*) IPv4 and IPv6 address logging
+*) Multiple network interfaces per daemon
+*) Output to stdout, plain text file, syslog, sqlite3 database
+*) History preserving logging
+
+The main difference between arpwatch and addrwatch is the format of output
+files.
+
+Arpwatch stores only current state of the network ethernet/ip pairings and 
+allows to send email notification when a pairing change occurs. This is fine
+for small and rather static networks. In arpwatch case all the history of
+paigings is saved only in administrator mailbox. When arpwatch is used for
+monitoring dozen or more networks it becomes hard to keep track of the historic
+address usage information.
+
+Addrwatch do not keep persistent network pairings state but insted logs all the
+events that allow ethernet/ip pairing discovery. For IPv4 it is ARP requests,
+ARP replies and ARP ACD (Address Conflict Detection) packets. For IPv6 ir uses
+ICMPv6 Neighbor Discovery and (DAD) Duplicate Address Detection packets
+(Neighbor Solicitations, Neighbor Advertisements).
+
+The output file produced by addrwatch is similar to arpwatch. Example of
+addrwatch output file:
+1329486484 eth0 00:aa:bb:cc:dd:ee fe80::2aa:bbff:fecc:ddee
+1329486485 eth0 00:aa:bb:cc:dd:ee 192.168.1.1
+1329486485 eth0 00:aa:bb:ff:00:11 192.168.1.3
+1329486486 eth0 00:11:11:11:11:11 fe80::211:11ff:fe11:1111
+1329486487 eth0 00:22:22:22:22:22 fe80::222:22ff:fe22:2222
+1329486488 eth0 00:33:33:33:33:33 192.168.2.2
+
+For each pairing discovery event addrwatch produce timestamp, interface, 
+ethernet address and IP address seperated by space.
+
+To prevent addrwatch from producing too many duplicate output data in active
+networks ratelimiting should be used. Read more in 'Ratelimit' section. 
+
+== Usage ==
+
+To simply try out addrwatch start ir without any arguments
+$ addrwatch
+
+When started like this addrwatch opens first non loopback interface and start
+logging event to the console without writing anything to disk. All events
+are printed to stdout, debug, warning, and erro messages are sent to syslog and
+printed to stderr.
+
+If you get error message:
+addrwatch: ERR: No suitable interfaces found!
+
+It usualy means you started addrwatch as normal user and do not have sufficient
+privileges to start sniffing on network interface. You should start addrwatch as
+root:
+$ sudo addrwatch
+
+
+You can specify which network interface or interfaces should be monitored by
+passing interface names as arguments. For example:
+$ addrwatch eth0 tap0
+
+To find out about more usage options:
+$ addrwatch --help
+
