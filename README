@@ -15,11 +15,11 @@ files.
 Arpwatch stores only current state of the network ethernet/ip pairings and 
 allows to send email notification when a pairing change occurs. This is fine
 for small and rather static networks. In arpwatch case all the history of
-paigings is saved only in administrator mailbox. When arpwatch is used for
+pairings is saved only in administrator mailbox. When arpwatch is used for
 monitoring dozen or more networks it becomes hard to keep track of the historic
 address usage information.
 
-Addrwatch do not keep persistent network pairings state but insted logs all the
+Addrwatch do not keep persistent network pairings state but instead logs all the
 events that allow ethernet/ip pairing discovery. For IPv4 it is ARP requests,
 ARP replies and ARP ACD (Address Conflict Detection) packets. For IPv6 ir uses
 ICMPv6 Neighbor Discovery and (DAD) Duplicate Address Detection packets
@@ -38,7 +38,24 @@ For each pairing discovery event addrwatch produce timestamp, interface,
 ethernet address and IP address seperated by space.
 
 To prevent addrwatch from producing too many duplicate output data in active
-networks ratelimiting should be used. Read more in 'Ratelimit' section. 
+networks rate-imiting should be used. Read more in 'Ratelimit' section. 
+
+== Installation ==
+
+To compile addrwatch you mus have following shared libraries:
+*) libpcap
+*) libevent
+*) OPTIONAL libsqlite3
+
+To compile addrwatch with sqlite3 support:
+$ ./configure --with-sqlite3
+$ make
+$ make install
+
+To compile addrwatch without sqlite3 support
+$ ./configure
+$ make
+$ make install
 
 == Usage ==
 
@@ -47,13 +64,13 @@ $ addrwatch
 
 When started like this addrwatch opens first non loopback interface and start
 logging event to the console without writing anything to disk. All events
-are printed to stdout, debug, warning, and erro messages are sent to syslog and
+are printed to stdout, debug, warning, and err messages are sent to syslog and
 printed to stderr.
 
 If you get error message:
 addrwatch: ERR: No suitable interfaces found!
 
-It usualy means you started addrwatch as normal user and do not have sufficient
+It usually means you started addrwatch as normal user and do not have sufficient
 privileges to start sniffing on network interface. You should start addrwatch as
 root:
 $ sudo addrwatch
