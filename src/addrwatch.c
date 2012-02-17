@@ -69,7 +69,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		cfg.syslog_flag = 1;
 		break;
 	case 'P':
-		cfg.promisc = 1;
+		cfg.promisc_flag = 0;
 		break;
 	case 'q':
 		cfg.quiet = 1;
@@ -183,7 +183,7 @@ void add_iface(char *iface)
 
 	ifc->name = iface;
 
-	ifc->pcap_handle = pcap_open_live(iface, SNAP_LEN, cfg.promisc, 1000, errbuf);
+	ifc->pcap_handle = pcap_open_live(iface, SNAP_LEN, cfg.promisc_flag, 1000, errbuf);
 	if (ifc->pcap_handle == NULL) {
 		log_msg(LOG_WARNING, "Skipping interface %s, %s\n", iface, errbuf);
 		goto error;
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
 	/* Default configuration */
 //	cfg.ratelimit = 0;
 //	cfg.quiet = 0;
-//	cfg.promisc = 0;
+	cfg.promisc_flag = 1;
 //	cfg.ratelimit = 0;
 //	cfg.sql_file = NULL;
 //	cfg.uname = NULL;
@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
 	else
 		log_msg(LOG_DEBUG, "Duplicate entries ratelimiting disabled");
 
-	if (cfg.promisc)
+	if (cfg.promisc_flag)
 		log_msg(LOG_DEBUG, "PROMISC mode enabled");
 	else
 		log_msg(LOG_DEBUG, "PROMISC mode disabled");
