@@ -12,14 +12,17 @@ void process_arp(struct pkt *p)
 	arp = p->arp;
 
 	if (*(uint32_t *)arp->arp_spa == INADDR_ANY) {
-//		printf("%s: ARP ACD packet\n", p->ifc->name);
-		save_ipv4_mapping(arp->arp_sha, arp->arp_tpa, p);
+		save_pairing(arp->arp_sha, arp->arp_tpa, p, IP4_LEN, ARP_ACD);
 		return;
 	}
 
 	if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REQUEST) {
-//		printf("%s: ARP REQ packet\n", p->ifc->name);
-		save_ipv4_mapping(arp->arp_sha, arp->arp_spa, p);
+		save_pairing(arp->arp_sha, arp->arp_spa, p, IP4_LEN, ARP_REQ);
+		return;
+	}
+
+	if (ntohs(arp->ea_hdr.ar_op) == ARPOP_REPLY) {
+		save_pairing(arp->arp_sha, arp->arp_spa, p, IP4_LEN, ARP_REP);
 		return;
 	}
 
@@ -28,14 +31,14 @@ void process_arp(struct pkt *p)
 void process_ns(struct pkt *p)
 {
 	if (IN6_IS_ADDR_UNSPECIFIED(&p->ip6->ip6_src)) {
-//		printf("%s: IPv6 DAD packet\n", p->ifc->name);
-		save_ipv6_mapping(p->ether->ether_shost, (uint8_t *) &p->ns->nd_ns_target, p);
+		save_pairing(p->ether->ether_shost,
+			(uint8_t *) &p->ns->nd_ns_target, p, IP6_LEN, ND_DAD);
 		return;
 	}
 
 	if (p->opt_slla) {
-//		printf("%s: IPv6 NS packet\n", p->ifc->name);
-		save_ipv6_mapping((uint8_t *)(p->opt_slla + 1), (uint8_t *) &p->ip6->ip6_src, p);
+		save_pairing((uint8_t *)(p->opt_slla + 1), 
+			(uint8_t *) &p->ip6->ip6_src, p, IP6_LEN, ND_NS);
 		return;
 	}
 }
@@ -43,6 +46,7 @@ void process_ns(struct pkt *p)
 void process_na(struct pkt *p)
 {
 	if (p->opt_tlla)
-		save_ipv6_mapping((uint8_t *)(p->opt_tlla + 1), (uint8_t *) &p->na->nd_na_target, p);
+		save_pairing((uint8_t *)(p->opt_tlla + 1),
+			(uint8_t *) &p->na->nd_na_target, p, IP6_LEN, ND_NA);
 }
 

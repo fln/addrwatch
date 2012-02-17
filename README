@@ -7,7 +7,7 @@ Main features of addrwatch:
 *) IPv4 and IPv6 address logging
 *) Multiple network interfaces per daemon
 *) Output to stdout, plain text file, syslog, sqlite3 database
-*) History preserving logging
+*) History preserving output/logging
 
 The main difference between arpwatch and addrwatch is the format of output
 files.
@@ -15,7 +15,7 @@ files.
 Arpwatch stores only current state of the network ethernet/ip pairings and 
 allows to send email notification when a pairing change occurs. This is fine
 for small and rather static networks. In arpwatch case all the history of
-pairings is saved only in administrator mailbox. When arpwatch is used for
+pairings is saved only in administrators mailbox. When arpwatch is used for
 monitoring dozen or more networks it becomes hard to keep track of the historic
 address usage information.
 
@@ -48,14 +48,19 @@ To compile addrwatch you mus have following shared libraries:
 *) OPTIONAL libsqlite3
 
 To compile addrwatch with sqlite3 support:
-$ ./configure --with-sqlite3
+$ ./configure --enable-sqlite3
 $ make
 $ make install
 
-To compile addrwatch without sqlite3 support
+To compile addrwatch without sqlite3 support:
 $ ./configure
 $ make
 $ make install
+
+If you do not want to install addrwatch to the system, skip the 'make install' 
+step. You can find compiled addrwatch binary in 'src' directory. This is the 
+only file needed to run the program and the only file that would otherwise be
+installed to the system.
 
 == Usage ==
 

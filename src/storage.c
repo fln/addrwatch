@@ -7,8 +7,33 @@
 #define IP4_LEN	4
 #define IP6_LEN 16
 
-static const char sql_insert4[] = "INSERT INTO map_ip4 VALUES(?, ?, ?, ?);";
-static const char sql_insert6[] = "INSERT INTO map_ip6 VALUES(?, ?, ?, ?);";
+static const char sql_create4[] = "\
+CREATE TABLE IF NOT EXISTS ip4(\
+timestamp UNSIGNED BIG INT, \
+interface varchar(16), \
+mac_address varchar(17), \
+ip_address varchar(16), \
+origin TINYINT\
+);";
+static const char sql_create6[] = "\
+CREATE TABLE IF NOT EXISTS ip6(\
+timestamp UNSIGNED BIG INT, \
+interface varchar(16), \
+mac_address varchar(17), \
+ip_address varchar(42), \
+origin TINYINT\
+);";
+static const char sql_insert4[] = "INSERT INTO ip4 VALUES(?, ?, ?, ?, ?);";
+static const char sql_insert6[] = "INSERT INTO ip6 VALUES(?, ?, ?, ?, ?);";
+
+static const char *pkt_origin_str[] = {
+	"ARP_REQ",
+	"ARP_REP",
+	"ARP_ACD",
+	"ND_NS",
+	"ND_NA",
+	"ND_DAD",
+};
 
 void sqlite_init()
 {
@@ -20,13 +45,14 @@ void sqlite_init()
 
 	rc = sqlite3_open(cfg.sql_file, &cfg.sql_conn);
 	if (rc)
-		log_msg(LOG_ERR, "Unable to open sqlite3 database file %s", cfg.sql_file);
+		log_msg(LOG_ERR, "Unable to open sqlite3 database file %s",
+			cfg.sql_file);
 
-	rc = sqlite3_exec(cfg.sql_conn, "CREATE TABLE IF NOT EXISTS map_ip4(tstamp UNSIGNED BIG INT, interface varchar(16), mac_address varchar(17), ip_address varchar(16));", 0, 0, 0);
+	rc = sqlite3_exec(cfg.sql_conn, sql_create4, 0, 0, 0);
 	if (rc)
 		log_msg(LOG_ERR, "Unable to create sqlite3 map_ip4 table");
 
-	rc = sqlite3_exec(cfg.sql_conn, "CREATE TABLE IF NOT EXISTS map_ip6(tstamp UNSIGNED BIG INT, interface varchar(16), mac_address varchar(17), ip_address varchar(42));", 0, 0, 0);
+	rc = sqlite3_exec(cfg.sql_conn, sql_create6, 0, 0, 0);
 	if (rc)
 		log_msg(LOG_ERR, "Unable to create sqlite3 map_ip4 table");
 
@@ -40,7 +66,7 @@ void sqlite_init()
 	if (rc)
 		log_msg(LOG_ERR, "Error preparing ipv6 address insert statement");
 
-	//sqlite3_busy_timeout(cfg.sql_conn, 100);
+	sqlite3_busy_timeout(cfg.sql_conn, 100);
 	log_msg(LOG_DEBUG, "Saving results to %s sqlite database", cfg.sql_file);
 #endif
 }
@@ -61,8 +87,11 @@ void datafile_init()
 	if (cfg.data_file) {
 		cfg.data_fd = fopen(cfg.data_file, "a");
 		if (!cfg.data_fd)
-			log_msg(LOG_ERR, "Unable to open data file %s", cfg.data_file);
-		log_msg(LOG_DEBUG, "Saving results to '%s' flat file", cfg.data_file);
+			log_msg(LOG_ERR, "Unable to open data file %s",
+				cfg.data_file);
+
+		log_msg(LOG_DEBUG, "Saving results to '%s' flat file",
+			cfg.data_file);
 	}
 }
 
@@ -72,7 +101,8 @@ void datafile_close()
 		fclose(cfg.data_fd);
 }
 
-static void save_ip_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p, uint8_t addr_len)
+void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
+	uint8_t addr_len, enum pkt_origin o)
 {
 	char mac_str[MAC_STR_LEN];
 	char ip_str[INET6_ADDRSTRLEN];
@@ -97,15 +127,16 @@ static void save_ip_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p, u
 		return;
 
 	if (!cfg.quiet) {
-		printf("%lu %s %s %s\n", tstamp, p->ifc->name, mac_str, ip_str);
+		printf("%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str,
+			ip_str, pkt_origin_str[o]);
 		fflush(stdout);
 	}
 
 	if (cfg.syslog_flag)
-		log_msg(LOG_INFO, "%lu %s %s %s", tstamp, p->ifc->name, mac_str, ip_str);
+		log_msg(LOG_INFO, "%lu %s %s %s %s", tstamp, p->ifc->name, mac_str, ip_str, pkt_origin_str[o]);
 
 	if (cfg.data_fd) {
-		fprintf(cfg.data_fd, "%lu %s %s %s\n", tstamp, p->ifc->name, mac_str, ip_str);
+		fprintf(cfg.data_fd, "%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str, ip_str, pkt_origin_str[o]);
 		fflush(cfg.data_fd);
 	}
 
@@ -120,6 +151,7 @@ static void save_ip_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p, u
 		rc += sqlite3_bind_text(stmt, 2, p->ifc->name, -1, NULL);
 		rc += sqlite3_bind_text(stmt, 3, mac_str, -1, NULL);
 		rc += sqlite3_bind_text(stmt, 4, ip_str, -1, NULL);
+		rc += sqlite3_bind_int(stmt, 5, o);
 		if (rc)
 			log_msg(LOG_ERR, "Unable to bind values to sql statement");
 
@@ -154,12 +186,3 @@ static void save_ip_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p, u
 
 }
 
-void save_ipv4_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p)
-{
-	save_ip_mapping(l2_addr, ip_addr, p, IP4_LEN);
-}
-
-void save_ipv6_mapping(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p)
-{
-	save_ip_mapping(l2_addr, ip_addr, p, IP6_LEN);
-}
