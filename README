@@ -1,0 +1,6 @@
+= addrwatch =
+
+A clone of arpwatch with additional stuff:
+*) IPv6 support
+*) Multiple interfaces per daemon
+*) sqlite storage option
