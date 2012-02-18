@@ -20,7 +20,6 @@
 #include <netinet/icmp6.h>
 #include <netinet/if_ether.h>
 
-#define PROG_NAME "addrwatch"
 #define SNAP_LEN 9000
 
 struct iface_config {

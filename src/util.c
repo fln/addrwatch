@@ -21,7 +21,7 @@ void log_open()
 {
 	int flags = 0;
 
-	openlog(PROG_NAME, flags, LOG_DAEMON);
+	openlog(PACKAGE_NAME, flags, LOG_DAEMON);
 }
 
 void log_msg(int priority, const char *format, ...)
@@ -45,7 +45,7 @@ void log_msg(int priority, const char *format, ...)
 	syslog(priority, "%s: %s", log_level[priority], buffer);
 
 	if (priority != LOG_INFO && !cfg.quiet)
-		fprintf(stderr, "%s: %s: %s\n", PROG_NAME, log_level[priority], buffer);
+		fprintf(stderr, "%s: %s: %s\n", PACKAGE_NAME, log_level[priority], buffer);
 
 	if (priority == LOG_ERR) {
 		log_close();

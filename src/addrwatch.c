@@ -17,8 +17,8 @@
 #include "mcache.h"
 #include "storage.h"
 
-const char *argp_program_version = "addrwatch 0.1";
-const char *argp_program_bug_address = "<julius.kriukas@google.com>";
+const char *argp_program_version = PACKAGE_STRING;
+const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 static char args_doc[] = "[INTERFACE1, INTERFACE2, ...]";
 static char doc[] =
 "Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
