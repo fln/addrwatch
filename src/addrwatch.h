@@ -49,6 +49,8 @@ struct addrwatch_config {
 	uint8_t daemon_flag;
 
 	char *uname;
+
+	struct ip_node *blacklist;
 	
 	char *data_file;
 	FILE *data_fd;
@@ -75,23 +77,30 @@ struct addrwatch_config {
 };
 
 struct pkt {
-	uint8_t	*raw_packet;
-	int	raw_len;
+	uint8_t *raw_packet;
+	int raw_len;
 
 	uint8_t *pos;
-	int	len;
+	int len;
 
-	struct iface_config	*ifc;
-	const struct pcap_pkthdr	*pcap_header;
+	struct iface_config *ifc;
+	const struct pcap_pkthdr *pcap_header;
 
-	struct ether_header	*ether;
-	struct ether_arp	*arp;
-	struct ip6_hdr	*ip6;
-	struct icmp6_hdr        *icmp6;
-	struct nd_neighbor_solicit	*ns;
-	struct nd_neighbor_advert	*na;
-	struct nd_opt_hdr	*opt_slla;
-	struct nd_opt_hdr	*opt_tlla;
+	struct ether_header *ether;
+	struct ether_arp *arp;
+	struct ip6_hdr *ip6;
+	struct icmp6_hdr *icmp6;
+	struct nd_neighbor_solicit *ns;
+	struct nd_neighbor_advert *na;
+	struct nd_opt_hdr *opt_slla;
+	struct nd_opt_hdr *opt_tlla;
+};
+
+struct ip_node {
+	uint8_t ip_addr[16];
+	uint8_t addr_len;
+
+	struct ip_node *next;
 };
 
 extern struct addrwatch_config cfg;

@@ -22,7 +22,8 @@ const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 static char args_doc[] = "[INTERFACE1, INTERFACE2, ...]";
 static char doc[] =
 "Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
-\vIf no interfaces given, then first non loopback interface is used.";
+\vIf no interfaces given, then first non loopback interface is used. IP \
+address blacklisting opetion '-b' can be used multiple times.";
 
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
@@ -32,9 +33,10 @@ static struct argp_option options[] = {
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE" },
 #endif
-	{0, 0, 0, 0, "Options for input filtering:" },
+	{0, 0, 0, 0, "Options for data filtering:" },
 	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets" },
 	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets" },
+	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP" },
 	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely" },
 	{0, 0, 0, 0, "Misc options:" },
 	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces" },
@@ -53,6 +55,7 @@ static const char def_filter[] = "ip6 and not tcp and not udp and not esp and no
 
 static error_t parse_opt (int key, char *arg, struct argp_state *state)
 {
+
 	switch(key) {
 	case '4':
 		cfg.v4_flag = 1;
@@ -62,11 +65,14 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		cfg.v6_flag = 1;
 		cfg.v4_flag = 0;
 		break;
-	case 'o':
-		cfg.data_file = arg;
+	case 'b':
+		blacklist_add(arg);
 		break;
 	case 'l':
 		cfg.syslog_flag = 1;
+		break;
+	case 'o':
+		cfg.data_file = arg;
 		break;
 	case 'P':
 		cfg.promisc_flag = 0;
@@ -441,6 +447,8 @@ int main(int argc, char *argv[])
 
 	libevent_close();
 	log_close();
+
+	blacklist_free();
 
 	return 0;
 }

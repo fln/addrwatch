@@ -26,6 +26,10 @@ void sqlite_close();
 void datafile_init();
 void datafile_close();
 
+void blacklist_add(char *ip_str);
+void blacklist_free();
+struct ip_node *blacklist_match(uint8_t *ip_addr, uint8_t addr_len);
+
 void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 	uint8_t addr_len, enum pkt_origin o);
 

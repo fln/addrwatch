@@ -101,6 +101,63 @@ void datafile_close()
 		fclose(cfg.data_fd);
 }
 
+void blacklist_add(char *ip_str)
+{
+	struct ip_node *ip;
+	int rc;
+
+	ip = (struct ip_node *) calloc(sizeof(struct ip_node), 1);
+
+	rc = inet_pton(AF_INET, ip_str, ip->ip_addr);
+	if (rc == 1) {
+		ip->addr_len = IP4_LEN;
+		ip->next = cfg.blacklist;
+		cfg.blacklist = ip;
+		return;
+	}
+
+	rc = inet_pton(AF_INET6, ip_str, ip->ip_addr);
+	if (rc == 1) {
+		ip->addr_len = IP6_LEN;
+		ip->next = cfg.blacklist;
+		cfg.blacklist = ip;
+		return;
+	}
+
+	free(ip);
+	log_msg(LOG_ERR, "Unable to blacklist, '%s' is not a valid IPv4 or IPv6 address", ip_str);
+}
+
+void blacklist_free()
+{
+	struct ip_node *ip;
+	struct ip_node *ip_next;
+
+	for (ip = cfg.blacklist; ip; ip = ip_next) {
+		ip_next = ip->next;
+		free(ip);
+	}
+
+	cfg.blacklist = NULL;
+}
+
+struct ip_node *blacklist_match(uint8_t *ip_addr, uint8_t addr_len)
+{
+	struct ip_node *ip;
+
+	for (ip = cfg.blacklist; ip; ip = ip->next) {
+		if (addr_len != ip->addr_len)
+			continue;
+
+		if (memcmp(ip_addr, ip->ip_addr, addr_len))
+			continue;
+
+		return ip;
+	}
+
+	return NULL;
+}
+
 void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 	uint8_t addr_len, enum pkt_origin o)
 {
@@ -112,6 +169,9 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 #if HAVE_LIBSQLITE3
 	sqlite3_stmt *stmt;
 #endif
+
+	if (blacklist_match(ip_addr, addr_len))
+		return;
 
 	ether_ntoa_m(l2_addr, mac_str);
 	if (addr_len == IP6_LEN)
