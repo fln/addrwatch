@@ -3,6 +3,7 @@
 #include <assert.h>
 
 static const char b64_map[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static char pkt_buffer[SNAP_LEN*4/3 + 3];
 
 void base64_enc_block(uint8_t in[3], uint8_t out[4], int len)
 {
@@ -43,3 +44,14 @@ void base64_encode(uint8_t *src, uint8_t *dst, int ssize, int dsize)
 		base64_enc_block(src + i, dst + i * 4 / 3, len);
 	}
 }
+
+char *base64_encode_packet(struct pkt *p)
+{
+	bzero(pkt_buffer, sizeof(pkt_buffer));
+
+	base64_encode(p->raw_packet, pkt_buffer, p->pcap_header->len,
+		sizeof(pkt_buffer));
+	
+	return pkt_buffer;
+}
+

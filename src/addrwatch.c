@@ -39,6 +39,7 @@ static struct argp_option options[] = {
 	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP" },
 	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely" },
 	{0, 0, 0, 0, "Misc options:" },
+	{"daemon",    'd', 0,      0, "Start as a daemon" },
 	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces" },
 	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces" },
 	{ 0 }
@@ -67,6 +68,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 	case 'b':
 		blacklist_add(arg);
+		break;
+	case 'd':
+		cfg.daemon_flag = 1;
 		break;
 	case 'l':
 		cfg.syslog_flag = 1;
@@ -128,7 +132,6 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 	bzero(&p, sizeof(p));
 
 	p.raw_packet = (uint8_t *)packet;
-	p.raw_len = header->len;
 
 	p.pos = (uint8_t *)packet;
 	p.len = header->caplen;
@@ -397,6 +400,8 @@ int main(int argc, char *argv[])
 //	cfg.uname = NULL;
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
+
+	daemonize();
 
 	log_open();
 	libevent_init();

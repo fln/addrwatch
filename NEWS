@@ -1,6 +1,12 @@
---------------------------------------------------------------------
-addrwatch 0.1: 2012-02-17	-- Julius Kriukas.
+Version 0.2
 
-  => Release of first version with lots of bugs.
-  	
---------------------------------------------------------------------
+  * IP address blacklisting
+  * daemon startup flag
+  * malformed packet warnings dumps packet to syslog. With scripts/dump2pcap.pl 
+    script can be converted to pcap dump files.
+
+
+Version 0.1
+
+  * Release of first version with lots of bugs.
+

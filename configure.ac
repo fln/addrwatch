@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([addrwatch], [0.1], [julius.kriukas@gmail.com])
+AC_INIT([addrwatch], [0.2], [julius.kriukas@gmail.com])
 AC_CONFIG_AUX_DIR([config])
 AM_CONFIG_HEADER([src/config.h])
 

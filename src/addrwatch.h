@@ -78,7 +78,6 @@ struct addrwatch_config {
 
 struct pkt {
 	uint8_t *raw_packet;
-	int raw_len;
 
 	uint8_t *pos;
 	int len;

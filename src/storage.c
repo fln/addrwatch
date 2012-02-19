@@ -179,15 +179,14 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 	else
 		ip4_ntoa(ip_addr, ip_str);
 
-	tstamp = 0;
-	time(&tstamp);
+	tstamp = p->pcap_header->ts.tv_sec;
 
 	if (cfg.ratelimit
 		&& cache_lookup(l2_addr, ip_addr, addr_len, tstamp, &p->ifc->cache))
 		return;
 
 	if (!cfg.quiet) {
-		printf("%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str,
+		printf("%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str, 
 			ip_str, pkt_origin_str[o]);
 		fflush(stdout);
 	}
