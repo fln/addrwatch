@@ -167,6 +167,7 @@ int parse_ipv6(struct pkt *p)
 int parse_packet(struct pkt *p)
 {
 	int	rc;
+	uint16_t ether_type;
 
 	if (p->len < sizeof(struct ether_header)) {
 		log_msg(LOG_WARNING, "%s: Error parsing Ethernet packet. Packet is too small (%d of %d bytes)", p->ifc->name, p->len, sizeof(struct ether_header));
@@ -177,7 +178,15 @@ int parse_packet(struct pkt *p)
 	p->pos += sizeof(struct ether_header);
 	p->len -= sizeof(struct ether_header);
 
-	switch (ntohs(p->ether->ether_type)) {
+	ether_type = ntohs(p->ether->ether_type);
+	if (ether_type == ETHERTYPE_VLAN) {
+		p->vlan_tag = ntohs(*(uint16_t *)p->pos) & 0xfff;
+		p->pos += 4;
+		p->len -= 4;
+		ether_type = ntohs(*(uint16_t *)(p->pos -2));
+	}
+
+	switch (ether_type) {
 	case ETHERTYPE_ARP:
 		rc = parse_arp(p);
 		break;

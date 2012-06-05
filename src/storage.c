@@ -11,6 +11,7 @@ static const char sql_create4[] = "\
 CREATE TABLE IF NOT EXISTS ip4(\
 timestamp UNSIGNED BIG INT, \
 interface varchar(16), \
+vlan_tag UNSIGNED INT, \
 mac_address varchar(17), \
 ip_address varchar(16), \
 origin TINYINT\
@@ -19,12 +20,13 @@ static const char sql_create6[] = "\
 CREATE TABLE IF NOT EXISTS ip6(\
 timestamp UNSIGNED BIG INT, \
 interface varchar(16), \
+vlan_tag UNSIGNED INT, \
 mac_address varchar(17), \
 ip_address varchar(42), \
 origin TINYINT\
 );";
-static const char sql_insert4[] = "INSERT INTO ip4 VALUES(?, ?, ?, ?, ?);";
-static const char sql_insert6[] = "INSERT INTO ip6 VALUES(?, ?, ?, ?, ?);";
+static const char sql_insert4[] = "INSERT INTO ip4 VALUES(?, ?, ?, ?, ?, ?);";
+static const char sql_insert6[] = "INSERT INTO ip6 VALUES(?, ?, ?, ?, ?, ?);";
 
 static const char *pkt_origin_str[] = {
 	"ARP_REQ",
@@ -186,16 +188,16 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 		return;
 
 	if (!cfg.quiet) {
-		printf("%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str, 
-			ip_str, pkt_origin_str[o]);
+		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name, p->vlan_tag, 
+			mac_str, ip_str, pkt_origin_str[o]);
 		fflush(stdout);
 	}
 
 	if (cfg.syslog_flag)
-		log_msg(LOG_INFO, "%lu %s %s %s %s", tstamp, p->ifc->name, mac_str, ip_str, pkt_origin_str[o]);
+		log_msg(LOG_INFO, "%lu %s %u %s %s %s", tstamp, p->ifc->name, p->vlan_tag, mac_str, ip_str, pkt_origin_str[o]);
 
 	if (cfg.data_fd) {
-		fprintf(cfg.data_fd, "%lu %s %s %s %s\n", tstamp, p->ifc->name, mac_str, ip_str, pkt_origin_str[o]);
+		fprintf(cfg.data_fd, "%lu %s %u %s %s %s\n", tstamp, p->ifc->name, p->vlan_tag, mac_str, ip_str, pkt_origin_str[o]);
 		fflush(cfg.data_fd);
 	}
 
@@ -208,9 +210,10 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 
 		rc = sqlite3_bind_int64(stmt, 1, tstamp);
 		rc += sqlite3_bind_text(stmt, 2, p->ifc->name, -1, NULL);
-		rc += sqlite3_bind_text(stmt, 3, mac_str, -1, NULL);
-		rc += sqlite3_bind_text(stmt, 4, ip_str, -1, NULL);
-		rc += sqlite3_bind_int(stmt, 5, o);
+		rc += sqlite3_bind_int(stmt, 3, p->vlan_tag);
+		rc += sqlite3_bind_text(stmt, 4, mac_str, -1, NULL);
+		rc += sqlite3_bind_text(stmt, 5, ip_str, -1, NULL);
+		rc += sqlite3_bind_int(stmt, 6, o);
 		if (rc)
 			log_msg(LOG_ERR, "Unable to bind values to sql statement");
 

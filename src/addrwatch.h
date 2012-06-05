@@ -85,6 +85,7 @@ struct pkt {
 	struct iface_config *ifc;
 	const struct pcap_pkthdr *pcap_header;
 
+	uint16_t vlan_tag;
 	struct ether_header *ether;
 	struct ether_arp *arp;
 	struct ip6_hdr *ip6;

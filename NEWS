@@ -1,3 +1,8 @@
+Version 0.3
+
+  * Added VLAN (802.1Q) support.
+  * Sqlite DB schema has new vlan_tag field and is incompatible with previous addrwatch versions.
+
 Version 0.2
 
   * IP address blacklisting
