@@ -40,6 +40,7 @@ static struct argp_option options[] = {
 	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely" },
 	{0, 0, 0, 0, "Misc options:" },
 	{"daemon",    'd', 0,      0, "Start as a daemon" },
+	{"pid",       'p', "FILE", 0, "Write process id to FILE" },
 	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces" },
 	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces" },
 	{ 0 }
@@ -77,6 +78,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 	case 'o':
 		cfg.data_file = arg;
+		break;
+	case 'p':
+		cfg.pid_file = arg;
 		break;
 	case 'P':
 		cfg.promisc_flag = 0;
@@ -354,6 +358,31 @@ void libevent_close()
 
 }
 
+void save_pid()
+{
+	FILE	*f;
+
+	if (!cfg.pid_file)
+		return;
+
+	f = fopen(cfg.pid_file, "w");
+	if(!f)
+	{
+		log_msg(LOG_ERR, "Unable to open pid file %s", cfg.pid_file);
+		return;
+	}
+	fprintf(f, "%d\n", getpid());
+	fclose(f);
+}
+
+void del_pid()
+{
+	if (!cfg.pid_file)
+		return;
+
+	unlink(cfg.pid_file);
+}
+
 void daemonize()
 {
 	pid_t pid, sid;
@@ -402,6 +431,7 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 
 	daemonize();
+	save_pid();
 
 	log_open();
 	libevent_init();
@@ -453,6 +483,7 @@ int main(int argc, char *argv[])
 	libevent_close();
 	log_close();
 
+	del_pid();
 	blacklist_free();
 
 	return 0;

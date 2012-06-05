@@ -52,6 +52,7 @@ struct addrwatch_config {
 
 	struct ip_node *blacklist;
 	
+	char *pid_file;
 	char *data_file;
 	FILE *data_fd;
 
