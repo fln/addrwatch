@@ -2,6 +2,7 @@ Version 0.3
 
   * Added VLAN (802.1Q) support.
   * Sqlite DB schema has new vlan_tag field and is incompatible with previous addrwatch versions.
+  * New '-p FILE' argument to save PID to FILE.
 
 Version 0.2
 
