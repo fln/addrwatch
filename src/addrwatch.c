@@ -19,7 +19,7 @@
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
-static char args_doc[] = "[INTERFACE1, INTERFACE2, ...]";
+static char args_doc[] = "[INTERFACE1 INTERFACE2 ...]";
 static char doc[] =
 "Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
 \vIf no interfaces given, then first non loopback interface is used. IP \
@@ -72,6 +72,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 	case 'd':
 		cfg.daemon_flag = 1;
+		cfg.quiet = 1;
 		break;
 	case 'l':
 		cfg.syslog_flag = 1;
