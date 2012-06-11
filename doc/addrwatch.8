@@ -1,0 +1,260 @@
+.\" Manpage for addrwatch.
+.\" Contact julius.kriukas@gmail.com to correct errors or typos.
+.TH ADDRWATCH 8 "06 Jun 2012" "addrwatch 0.3" "addrwatch man page"
+.SH NAME
+addrwatch \- ethernet/ip address monitoring tool
+.SH SYNOPSIS
+.B addrwatch
+.B [\-lq46dP?V]
+.BI "[-o " file ]
+.BI "[-b " ip ]
+.BI "[-r " num ]
+.BI "[-p " pidfile ]
+.BI "[-u " user ]
+.BI "[" INTERFACE1 " " INTERFACE2 " " ... "]"
+.SH DESCRIPTION
+.B addrwatch
+is a similar software to arpwatch. It main purpose is to monitor 
+network and log ethernet/ip pairings.
+.PP
+To simply try out
+.B addrwatch
+start ir without any arguments. When started without arguments it will open 
+first non loopback interface and start logging events to the console without 
+writing anything to disk. All discovered ethernet/ip address pairings will be
+printed to
+.BR stdout .
+All debug, warning, and err messages will be sent to syslog 
+and printed to 
+.BR stderr .
+.SH OPTIONS
+.TP
+.BI "-l, --syslog"
+Log discovered ethernet/ip address pairings to syslog (daemon facility).
+.TP
+.BI "-o " "file" ", --output=" "file"
+Write discovered ethernet/ip address pairings to a specified
+.IR "file" "."
+See
+.B OUTPUT
+section for more details.
+.TP
+.BI "-q, --quiet"
+Suppress any output to 
+.B stdout
+and
+.BR stderr .
+.TP
+.BI "-4, --ipv4-only"
+Capture only IPv4 packets.
+.TP
+.BI "-6, --ipv6-only"
+Capture only IPv6 packets.
+.TP
+.BI "-b " "ip" ", --blacklist=" "ip"
+Ignore pairings with specified
+.I ip
+address.
+.TP
+.BI "-r " "num" ", --ratelimit=" "num"
+If
+.I num
+> 0, ratelimit duplicate ethernet/ip pairings to 1 every
+.I num
+seconds.
+
+If
+.I num
+= 0,
+ratelimiting of duplicate entries is disabled.
+
+If
+.I num
+= -1, duplicate entries are suppressed indefinitely. See
+.B RATELIMITING
+section for more details.
+.TP
+.BI "-d, --daemon"
+Become a daemon after start. This option implies
+.BR "-q" " (" "--quiet" ")"
+argument.
+.TP
+.BI "-p " "pidfile" ", --pid=" "pidfile"
+Write process id to
+.IR "pidfile" "."
+Pidfile is deleted when application is terminated.
+This option is usualy used with 
+.BR "-d" " (" "--daemon" ")"
+argument. When used with
+.BR "-u" " (" "--user" ")"
+argument
+.I pidfle
+will be created before changing active user and in most cases
+.B arrdwatch
+will not be able to delete
+.I pidfile
+on exit.
+.TP
+.BI "-P, --no-promisc"
+Disable promisc mode on network interfaces.
+.TP
+.BI "-u " "user" ", --user=" "user"
+Suid to 
+.I user
+after opening network interfaces.
+.TP
+.BI "-?, --help"
+Show command line arguments.
+.TP
+.BI "--usage"
+Give a short usage message.
+.TP
+.BI "-V, --version"
+Print program version.
+.SH OUTPUT
+In output file or 
+.B stdout
+each line represents one ethernet/ip address pairing discovery event. Event has
+following format
+.BR "unix timestamp" ", " "interface" ", " "vlan tag" ", " "mac address" ", "
+.B ip address
+and
+.B packet type
+separated by a space.
+.PP
+Packets without vlan tag is represented by tag value 0.
+.PP
+Possible packet types are ARP_REQ, ARP_REP, ARP_ACD, ND_ND, ND_NA, ND_DAD.
+Ethernet address and IP address are extracted from different parts of the
+packet based on packet type.
+.IP ARP_REQ 
+ARP Request packet. Sender hardware address (from ARP header) and
+sender protocol address (from ARP header) is saved.
+.IP ARP_REP 
+ARP Reply packet. Sender hardware address (from ARP header) and
+sender protocol address (from ARP header) is saved.
+.IP ARP_ACD 
+ARP Address collision detection packet. Sender hardware address
+(from ARP header) and target protocol address (from ARP header) is saved.
+.IP ND_NS 
+Neighbor Solicitation packet.	Source link-layer address (from NS
+option) and source address (from IPv6 header) is saved.
+.IP ND_NA 
+Neighbor Advertisement packet. Target link-layer address (from NA
+option) and source address (from IPv6 header) is saved.
+.IP ND_DAD 
+Duplicate Address Detection packet. Source MAC (from Ethernet
+header) and target address (from NS header) is saved.
+.PP
+Output example:
+.nf
+.in +4
+.B timestamp iface vlan mac ip type
+1339405924 eth0 502 e0:ca:94:30:06:8b 2001:db8:200:4202:8946:e6b7:976a:cef3 ND_NA
+1339406009 eth0 257 f0:4d:a2:2e:ad:0d 169.254.227.85 ARP_ACD
+1339406018 eth0 502 58:1f:aa:d0:92:7d 2001:db8:200:4202:805d:b5ae:8374:436c ND_DAD
+1339406029 eth0 502 38:59:f9:3a:de:65 172.16.2.19 ARP_REP
+1339406030 eth0 12 00:c0:ee:5a:89:c7 10.1.32.221 ARP_REQ
+1339406030 eth0 252 00:1c:c0:79:ab:ee 2001:db8:200:2381::657b ND_NS
+.in -4
+.fi
+.SH RATELIMITING
+If used without ratelimiting addrwatch reports etherment/ip pairing everytime
+it gets usable ARP or IPv6 ND packet. In actively used networks it generates
+many duplicate pairings especially for routers and servers.
+.PP
+Ratelimiting option
+.BI "-r " "num"
+(
+.BI "--ratelimit=" "num"
+) surpress output of duplicate
+pairings for at least NUM seconds. In other words if addrwatch have discovered
+some pairing (mac,ip) it will not report (mac,ip) again unless NUM seconds have
+passed.
+.PP
+There is an exception to this rule to allow tracking ethernet address changes.
+If
+.B addrwatch
+have discovered pairings: (mac1,ip),(mac2,ip),(mac1,ip) within
+ratelimit time window it will report all three pairings. By doing so
+ratelimiting will not loose any information about ethernet address changes.
+.PP
+For example if we have a stream of events:
+.nf
+.in +4
+.B "time   ethernet          ip"
+01     11:22:33:44:55:66 192.168.0.1
+15     11:22:33:44:55:66 192.168.0.1
+20     aa:bb:cc:dd:ee:ff 192.168.0.1
+25     aa:bb:cc:dd:ee:ff 192.168.0.1
+30     11:22:33:44:55:66 192.168.0.1
+35     11:22:33:44:55:66 192.168.0.1
+40     aa:bb:cc:dd:ee:ff 192.168.0.1
+65     aa:bb:cc:dd:ee:ff 192.168.0.1
+.in -4
+.fi
+.PP
+With
+.B "--ratelimit=100"
+we would get:
+.nf
+.in +4
+.B "time   ethernet          ip"
+01     11:22:33:44:55:66 192.168.0.1
+20     aa:bb:cc:dd:ee:ff 192.168.0.1
+30     11:22:33:44:55:66 192.168.0.1
+40     aa:bb:cc:dd:ee:ff 192.168.0.1
+.in -4
+.fi
+.PP
+Without the exception output would be:
+.nf
+.in +4
+.B "time   ethernet          ip"
+01     11:22:33:44:55:66 192.168.0.1
+20     aa:bb:cc:dd:ee:ff 192.168.0.1
+.in -4
+.fi
+.PP
+And we would loose information that address 192.168.0.1 was used by
+11:22:33:44:55:66 between 30-40th seconds.
+.PP
+To sum up ratelimiting reduces amount of duplicate information without loosing
+any ethernet address change events.
+.PP
+Ratelimit option essentially limits data granularity for IP address usage
+duration information (when and for what time period specific IP address was
+used). On the other hand without ratelimiting at all you would not get very
+precise IP address usage duration information anyways because some hosts might
+use IP address without sending ARP or ND packets as often as others
+do.
+.PP
+If
+.I num
+is set to 0, ratelimiting is disabled and all pairing discovery events
+are reported.
+.PP
+If
+.I num
+is set to -1, ratelimiting is enabled with infinitely long time window
+therefore all duplicate pairings are suppressed indefinitely. In this mode
+addrwatch acts almost as arpwatch with the exception that ethernet address
+changes are still reported.
+.PP
+It might look tempting to always use addrwatch with
+.B "--ratelimit=-1"
+however by
+doing so you loose the information about when and for what period of time
+specific IP address was used. There will be no difference between temporary
+IPv6 addressed which was used once and statically configured permanent
+addresses.
+.SH FILES
+Todo.
+.SH NOTES
+Todo.
+.SH BUGS
+No known bugs.
+.SH EXAMPLE
+Todo.
+.SH SEE ALSO
+Todo.

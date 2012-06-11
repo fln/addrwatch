@@ -46,5 +46,6 @@ AS_IF([test "x$enable_sqlite3" = "xyes"], [
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+		 doc/Makefile])
 AC_OUTPUT
