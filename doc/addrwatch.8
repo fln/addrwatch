@@ -7,7 +7,9 @@ addrwatch \- ethernet/ip address monitoring tool
 .B addrwatch
 .B [\-lq46dP?V]
 .BI "[-o " file ]
+.BI "[-s " sqlite3.db ]
 .BI "[-b " ip ]
+.BI "[-H " size ]
 .BI "[-r " num ]
 .BI "[-p " pidfile ]
 .BI "[-u " user ]
@@ -19,7 +21,7 @@ network and log ethernet/ip pairings.
 .PP
 To simply try out
 .B addrwatch
-start ir without any arguments. When started without arguments it will open 
+start it without any arguments. When started without arguments it will open 
 first non loopback interface and start logging events to the console without 
 writing anything to disk. All discovered ethernet/ip address pairings will be
 printed to
@@ -38,6 +40,37 @@ Write discovered ethernet/ip address pairings to a specified
 See
 .B OUTPUT
 section for more details.
+.TP
+.BI "-s " "sqlite3.db" ", --sqlite3=" "sqlite3.db"
+Write discovered ethernet/ip address pairings to sqlite3 database in
+.I sqlite3.db
+file. Database file and tables are created during startup if does not exists.
+
+Pairings are written in two separate tables (by protocol) having such schemas:
+.nf
+.in +4
+CREATE TABLE ip4(
+.in +4
+timestamp UNSIGNED BIG INT,
+interface varchar(16),
+vlan_tag UNSIGNED INT,
+mac_address varchar(17),
+ip_address varchar(16),
+origin TINYINT
+.in -4
+);
+CREATE TABLE ip6(
+.in +4
+timestamp UNSIGNED BIG INT,
+interface varchar(16),
+vlan_tag UNSIGNED INT,
+mac_address varchar(17),
+ip_address varchar(42),
+origin TINYINT
+.in -4
+);
+.in -4
+.fi
 .TP
 .BI "-q, --quiet"
 Suppress any output to 
@@ -62,17 +95,25 @@ If
 > 0, ratelimit duplicate ethernet/ip pairings to 1 every
 .I num
 seconds.
-
+.br
 If
 .I num
 = 0,
 ratelimiting of duplicate entries is disabled.
-
+.br
 If
 .I num
 = -1, duplicate entries are suppressed indefinitely. See
 .B RATELIMITING
 section for more details.
+.TP
+.BI "-H " "size" ", --hashsize=" "size"
+Size of ratelimiting hash table used to store recent ethernet/ip address
+pairings. Minimum value is 1, maximum value is 65536. Default value is 1 (no
+hash table), all pairings are stored in a linked list.
+
+The size of hash table should be increased in active networks with many nodes.
+Lager hash table speeds up cache lookups at the cost of increased memory usage.
 .TP
 .BI "-d, --daemon"
 Become a daemon after start. This option implies
@@ -248,13 +289,31 @@ doing so you loose the information about when and for what period of time
 specific IP address was used. There will be no difference between temporary
 IPv6 addressed which was used once and statically configured permanent
 addresses.
-.SH FILES
-Todo.
 .SH NOTES
-Todo.
-.SH BUGS
-No known bugs.
-.SH EXAMPLE
-Todo.
+You can send
+.B SIGHUP
+signal to
+.B addrwatch
+to force it reopen output file. It may be useful if used in combination with
+.BR logrotate (8).
+.SH EXAMPLES
+Start monitoring first non loopback network interface. Output will be send to
+.BR stdout ":"
+.IP
+.B addrwatch
+.PP
+Start monitoring on multiple interfaces:
+.IP
+.B addrwatch eth0 eth1 eth2
+.PP
+Start addrwatch as a daemon, write output to file, enable ratelimiting to 1
+event per minute:
+.IP
+.B addrwatch -d -o /var/lib/addrwatch.dat -r 60 eth0
+.PP
+Start as a daemon, save pid file, send output to syslog, ratelimit to 1 event
+per hour, suid to nobody, monitor multiple interfaces:
+.IP
+.B addrwatch -d -p /var/run/addrwatch.pid -s -r 3600 -u nobody eth0 eth1 eth3
 .SH SEE ALSO
-Todo.
+.BR logrotate (8)

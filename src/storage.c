@@ -160,13 +160,30 @@ struct ip_node *blacklist_match(uint8_t *ip_addr, uint8_t addr_len)
 	return NULL;
 }
 
+inline uint16_t pkt_hash(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, uint16_t vlan_tag)
+{
+	int i;
+	uint16_t sum;
+
+	sum = 0;
+	for (i = 0; i < 6; i += 2)
+		sum = sum ^ *(uint16_t *)(l2_addr+i);
+
+	for (i = 0; i < len; i += 2)
+		sum = sum ^ *(uint16_t *)(ip_addr+i);
+
+	sum = sum ^ vlan_tag;
+
+	return sum;
+}
+
 void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 	uint8_t addr_len, enum pkt_origin o)
 {
 	char mac_str[MAC_STR_LEN];
 	char ip_str[INET6_ADDRSTRLEN];
-	struct mcache_node *cnode;
 	time_t tstamp;
+	uint16_t hash;
 	int rc;
 #if HAVE_LIBSQLITE3
 	sqlite3_stmt *stmt;
@@ -183,9 +200,12 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 
 	tstamp = p->pcap_header->ts.tv_sec;
 
-	if (cfg.ratelimit
-		&& cache_lookup(l2_addr, ip_addr, addr_len, tstamp, &p->ifc->cache))
-		return;
+	if (cfg.ratelimit) {
+		hash = pkt_hash(l2_addr, ip_addr, addr_len, p->vlan_tag);
+		hash = hash % cfg.hashsize;
+		if(cache_lookup(l2_addr, ip_addr, addr_len, tstamp, p->vlan_tag, p->ifc->cache + hash))
+			return;
+	}
 
 	if (!cfg.quiet) {
 		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name, p->vlan_tag, 
@@ -235,16 +255,7 @@ void save_pairing(uint8_t *l2_addr, uint8_t *ip_addr, struct pkt *p,
 	}
 #endif
 
-	if (cfg.ratelimit) {
-		cnode = (struct mcache_node *) calloc(sizeof(struct mcache_node), 1);
-		memcpy(cnode->l2_addr, l2_addr, sizeof(cnode->l2_addr));
-		memcpy(cnode->ip_addr, ip_addr, addr_len);
-		cnode->tstamp = tstamp;
-		cnode->addr_len = addr_len;
-
-		cnode->next = p->ifc->cache;
-		p->ifc->cache = cnode;
-	}
-
+	if (cfg.ratelimit)
+		cache_add(l2_addr, ip_addr, addr_len, tstamp, p->vlan_tag, p->ifc->cache + hash);
 }
 

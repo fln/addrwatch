@@ -9,11 +9,13 @@ struct mcache_node {
 	uint8_t ip_addr[16];
 	time_t tstamp;
 	uint8_t addr_len;
+	uint8_t vlan_tag;
 
 	struct mcache_node *next;
 };
 
-struct mcache_node *cache_lookup(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, time_t t, struct mcache_node **cache);
 void cache_prune(struct mcache_node *dead_node, struct mcache_node **cache);
 void cache_del(struct mcache_node *dead_node, struct mcache_node **cache);
+void cache_add(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, time_t tstamp, uint16_t vlan_tag, struct mcache_node **cache);
+struct mcache_node *cache_lookup(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, time_t tstamp, uint16_t vlan_tag, struct mcache_node **cache);
 

@@ -33,13 +33,14 @@ struct iface_config {
 	struct bpf_program pcap_filter;
 	pcap_t *pcap_handle;
 
-	struct mcache_node *cache;
+	struct mcache_node **cache;
 
 	struct iface_config *next;
 };
 
 struct addrwatch_config {
 	int ratelimit;
+	int hashsize;
 	int quiet;
 
 	int promisc_flag;

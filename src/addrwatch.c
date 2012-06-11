@@ -27,22 +27,23 @@ address blacklisting opetion '-b' can be used multiple times.";
 
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
-	{"syslog",    'l', 0,      0, "Output data to syslog (daemon facility)" },
-	{"output",    'o', "FILE", 0, "Output data to plain text FILE" },
-	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr" },
+	{"syslog",    'l', 0,      0, "Output data to syslog (daemon facility)." },
+	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
+	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 #if HAVE_LIBSQLITE3
-	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE" },
+	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
 #endif
 	{0, 0, 0, 0, "Options for data filtering:" },
-	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets" },
-	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets" },
-	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP" },
-	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely" },
+	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets." },
+	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets." },
+	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP." },
+	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely. Default is 0." },
+	{"hashsize",  'H', "NUM",  0, "Size of ratelimit hash table. Default is 1 (no hash table)." },
 	{0, 0, 0, 0, "Misc options:" },
-	{"daemon",    'd', 0,      0, "Start as a daemon" },
-	{"pid",       'p', "FILE", 0, "Write process id to FILE" },
-	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces" },
-	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces" },
+	{"daemon",    'd', 0,      0, "Start as a daemon." },
+	{"pid",       'p', "FILE", 0, "Write process id to FILE." },
+	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces." },
+	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces." },
 	{ 0 }
 };
 
@@ -73,6 +74,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 	case 'd':
 		cfg.daemon_flag = 1;
 		cfg.quiet = 1;
+		break;
+	case 'H':
+		cfg.hashsize = atoi(arg);
 		break;
 	case 'l':
 		cfg.syslog_flag = 1;
@@ -239,6 +243,15 @@ void add_iface(char *iface)
 	event_add(&ifc->event, NULL);
 #endif
 
+	if (cfg.hashsize < 1 || cfg.hashsize > 65536)
+		log_msg(LOG_ERR, "%s: hash size (%d) must be >= 1 and <= 65536", __FUNCTION__, cfg.hashsize);
+
+	if (cfg.ratelimit) {
+		ifc->cache = calloc(cfg.hashsize, sizeof(*ifc->cache));
+		if (!ifc->cache)
+			log_msg(LOG_ERR, "%s: unable to allocate memory for hash cache", __FUNCTION__);
+	}
+
 	ifc->next = cfg.interfaces;
 	cfg.interfaces = ifc;
 
@@ -259,6 +272,7 @@ error:
 struct iface_config *del_iface(struct iface_config *ifc)
 {
 	struct iface_config	*next;
+	int	i;
 
 	next = ifc->next;
 
@@ -270,8 +284,12 @@ struct iface_config *del_iface(struct iface_config *ifc)
 
 	log_msg(LOG_DEBUG, "Closed interface %s", ifc->name);
 
-	if (ifc->cache)
-		cache_prune(ifc->cache, &ifc->cache);
+	if (ifc->cache) {
+		for (i = 0; i < cfg.hashsize; i++)
+			if (*(ifc->cache + i))
+				cache_prune(*(ifc->cache+i), ifc->cache+i);
+		free(ifc->cache);
+	}
 
 	free(ifc);
 	
@@ -423,6 +441,7 @@ int main(int argc, char *argv[])
 
 	/* Default configuration */
 //	cfg.ratelimit = 0;
+	cfg.hashsize = 1;
 //	cfg.quiet = 0;
 	cfg.promisc_flag = 1;
 //	cfg.ratelimit = 0;
