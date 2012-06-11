@@ -1,3 +1,8 @@
+Version 0.4
+
+  * Ratelimiting cache can use hash table to improve speed.
+  * Man page.
+
 Version 0.3
 
   * Added VLAN (802.1Q) support.
