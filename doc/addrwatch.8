@@ -124,14 +124,14 @@ argument.
 Write process id to
 .IR "pidfile" "."
 Pidfile is deleted when application is terminated.
-This option is usualy used with 
+This option is usually used with 
 .BR "-d" " (" "--daemon" ")"
 argument. When used with
 .BR "-u" " (" "--user" ")"
 argument
 .I pidfle
 will be created before changing active user and in most cases
-.B arrdwatch
+.B addrwatch
 will not be able to delete
 .I pidfile
 on exit.
@@ -200,7 +200,7 @@ Output example:
 .in -4
 .fi
 .SH RATELIMITING
-If used without ratelimiting addrwatch reports etherment/ip pairing everytime
+If used without ratelimiting addrwatch reports etherment/ip pairing every time
 it gets usable ARP or IPv6 ND packet. In actively used networks it generates
 many duplicate pairings especially for routers and servers.
 .PP
@@ -208,8 +208,10 @@ Ratelimiting option
 .BI "-r " "num"
 (
 .BI "--ratelimit=" "num"
-) surpress output of duplicate
-pairings for at least NUM seconds. In other words if addrwatch have discovered
+) suppress output of
+.B duplicate
+pairings for at least NUM seconds (all non duplicate pairings will be
+reported). In other words if addrwatch have discovered
 some pairing (mac,ip) it will not report (mac,ip) again unless NUM seconds have
 passed.
 .PP
