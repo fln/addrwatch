@@ -9,7 +9,7 @@ struct mcache_node {
 	uint8_t ip_addr[16];
 	time_t tstamp;
 	uint8_t addr_len;
-	uint8_t vlan_tag;
+	uint16_t vlan_tag;
 
 	struct mcache_node *next;
 };
