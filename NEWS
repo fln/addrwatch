@@ -1,3 +1,7 @@
+Version 0.5
+
+  * Fixed ratelimiting with vlan id > 255 bug.
+
 Version 0.4
 
   * Ratelimiting cache can use hash table to improve speed.
