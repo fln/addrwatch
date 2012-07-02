@@ -37,7 +37,11 @@ int check_arp(struct pkt *p)
 		rc = -1;
 	}
 
-	if (memcmp(p->ether->ether_shost, arp->arp_sha, ETH_ALEN) != 0) {
+	// MS Network Load Balancer use physical device MAC address in ethernet
+	// frame but virtual MAC address in ARP sender address field. In
+	// networks where MS NLB is used it produces bunch of warnings.
+
+	/*if (memcmp(p->ether->ether_shost, arp->arp_sha, ETH_ALEN) != 0) {
 		ether_ntoa_m(p->ether->ether_shost, l2_addr1);
 		ether_ntoa_m(arp->arp_sha, l2_addr2);
 		ip4_ntoa(arp->arp_spa, ip_addr);
@@ -45,7 +49,7 @@ int check_arp(struct pkt *p)
 		log_msg(LOG_WARNING, "%s: Malformed ARP packet. Erhernet and ARP source address missmatch (%s != %s) [%s]. Packet dump: %s",
 			p->ifc->name, l2_addr1, l2_addr2, ip_addr, pkt_dump);
 		rc = -1;
-	}
+	}*/
 
 	return rc;
 }
