@@ -1,8 +1,9 @@
 #include "mcache.h"
 #include "util.h"
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Delete dead_node and all following nodes from cache
 void cache_prune(struct mcache_node *dead_node, struct mcache_node **cache)

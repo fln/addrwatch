@@ -23,7 +23,7 @@ int check_arp(struct pkt *p)
 	arp = p->arp;
 	rc = 0;
 
-	if (arp->ea_hdr.ar_hln != ETH_ALEN) {
+	if (arp->ea_hdr.ar_hln != ETHER_ADDR_LEN) {
 		pkt_dump = base64_encode_packet(p);
 		log_msg(LOG_WARNING, "%s: Malformed ARP packet. Wrong hardware size. Packet dump: %s",
 			p->ifc->name, pkt_dump);
@@ -41,7 +41,7 @@ int check_arp(struct pkt *p)
 	// frame but virtual MAC address in ARP sender address field. In
 	// networks where MS NLB is used it produces bunch of warnings.
 
-	/*if (memcmp(p->ether->ether_shost, arp->arp_sha, ETH_ALEN) != 0) {
+	/*if (memcmp(p->ether->ether_shost, arp->arp_sha, ETHER_ADDR_LEN) != 0) {
 		ether_ntoa_m(p->ether->ether_shost, l2_addr1);
 		ether_ntoa_m(arp->arp_sha, l2_addr2);
 		ip4_ntoa(arp->arp_spa, ip_addr);

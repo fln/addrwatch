@@ -5,7 +5,7 @@
 #include <net/ethernet.h>
 
 struct mcache_node {
-	uint8_t l2_addr[ETH_ALEN];
+	uint8_t l2_addr[ETHER_ADDR_LEN];
 	uint8_t ip_addr[16];
 	time_t tstamp;
 	uint8_t addr_len;

@@ -4,8 +4,6 @@
 #  include <config.h>
 #endif
 
-#include "mcache.h"
-
 #include <pcap.h>
 #include <event.h>
 #include <time.h>
@@ -16,9 +14,12 @@
 #include <net/ethernet.h>
 #include <net/if.h>
 
+#include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/icmp6.h>
 #include <netinet/if_ether.h>
+
+#include "mcache.h"
 
 #define SNAP_LEN 9000
 

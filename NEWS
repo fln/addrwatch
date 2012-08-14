@@ -1,3 +1,7 @@
+Version 0.6
+
+  * Fixed configure script and source code to compile on FreeBSD.
+
 Version 0.5
 
   * Fixed ratelimiting with vlan id > 255 bug.
