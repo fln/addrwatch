@@ -1,11 +1,12 @@
 #include "base64.h"
 
 #include <assert.h>
+#include <strings.h>
 
 static const char b64_map[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static char pkt_buffer[SNAP_LEN*4/3 + 3];
 
-void base64_enc_block(uint8_t in[3], uint8_t out[4], int len)
+void base64_enc_block(uint8_t in[3], char out[4], int len)
 {
 	unsigned int bin;
 
@@ -32,7 +33,7 @@ void base64_enc_block(uint8_t in[3], uint8_t out[4], int len)
 	}
 }
 
-void base64_encode(uint8_t *src, uint8_t *dst, int ssize, int dsize)
+void base64_encode(uint8_t *src, char *dst, int ssize, int dsize)
 {
 	int i;
 	int len;
