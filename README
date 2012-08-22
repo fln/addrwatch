@@ -2,15 +2,20 @@
  addrwatch
 ===========
 
-This is a similar software to arpwatch. It main purpose is to monitor network
-and log ethernet/ip pairings.
+This is a tool similar to arpwatch. It main purpose is to monitor network and 
+log discovered ethernet/ip pairings.
 
 Main features of addrwatch:
 
-* IPv4 and IPv6 address logging
-* Multiple network interfaces per daemon
+* IPv4 and IPv6 address monitoring
+* Monitoring multiple network interfaces with one daemon
+* Monitoring of VLAN tagged (802.1Q) packets.
 * Output to stdout, plain text file, syslog, sqlite3 database
-* History preserving output/logging
+* IP address usage history preserving output/logging
+
+Addrwatch is extremely useful in networks with IPv6 autoconfiguration 
+(RFC4862) enabled. It allows to track IPv6 addresses of hosts using IPv6 
+privacy extensions (RFC4941).
 
 The main difference between arpwatch and addrwatch is the format of output
 files.
