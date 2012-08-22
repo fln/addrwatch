@@ -5,7 +5,7 @@
 addrwatch \- ethernet/ip address monitoring tool
 .SH SYNOPSIS
 .B addrwatch
-.B [\-lq46dP?V]
+.B [\-lqv46dP?V]
 .BI "[-o " file ]
 .BI "[-s " sqlite3.db ]
 .BI "[-b " ip ]
@@ -77,6 +77,9 @@ Suppress any output to
 .B stdout
 and
 .BR stderr .
+.TP
+.BI "-v, --verbose"
+Enable debug messages.
 .TP
 .BI "-4, --ipv4-only"
 Capture only IPv4 packets.

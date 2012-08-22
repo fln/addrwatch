@@ -38,6 +38,9 @@ void log_msg(int priority, const char *format, ...)
 	if (priority < LOG_CRIT || priority > LOG_DEBUG)
 		return;
 
+	if (priority == LOG_DEBUG && !cfg.verbose_flag)
+		return;
+
 	va_start (pvar, format);
 	vsnprintf(buffer, sizeof(buffer), format, pvar);
 	va_end (pvar);

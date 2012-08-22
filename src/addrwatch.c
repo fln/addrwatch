@@ -31,6 +31,7 @@ static struct argp_option options[] = {
 	{"syslog",    'l', 0,      0, "Output data to syslog (daemon facility)." },
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
+	{"verbose",   'v', 0,      0, "Enable debug messages." },
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
 #endif
@@ -106,6 +107,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 #endif
 	case 'u':
 		cfg.uname = arg;
+		break;
+	case 'v':
+		cfg.verbose_flag = 1;
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
