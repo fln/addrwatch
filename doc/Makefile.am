@@ -1,2 +1,2 @@
-man_MANS	= addrwatch.8
+dist_man_MANS	= addrwatch.8
 
