@@ -17,6 +17,9 @@
 #include "util.h"
 #include "mcache.h"
 #include "storage.h"
+#include "output_flatfile.h"
+#include "output_sqlite.h"
+#include "output_mysql.h"
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
@@ -32,6 +35,9 @@ static struct argp_option options[] = {
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 	{"verbose",   'v', 0,      0, "Enable debug messages." },
+#if HAVE_LIBMYSQLCLIENT
+	{"mysql",     'm', "TBL",  OPTION_ARG_OPTIONAL, "Output data to MySQL database use TBL table (default: " PACKAGE")." },
+#endif
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
 #endif
@@ -102,7 +108,15 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 #if HAVE_LIBSQLITE3
 	case 's':
-		cfg.sql_file = arg;
+		cfg.sqlite_file = arg;
+		break;
+#endif
+#if HAVE_LIBMYSQLCLIENT
+	case 'm':
+		if (arg)
+			cfg.mysql_table = arg;
+		else
+			cfg.mysql_table = PACKAGE;
 		break;
 #endif
 	case 'u':
@@ -208,13 +222,13 @@ void add_iface(char *iface)
 
 	ifc->pcap_handle = pcap_open_live(iface, SNAP_LEN, cfg.promisc_flag, 1000, errbuf);
 	if (ifc->pcap_handle == NULL) {
-		log_msg(LOG_WARNING, "Skipping interface %s, %s\n", iface, errbuf);
+		log_msg(LOG_WARNING, "Skipping interface %s, %s", iface, errbuf);
 		goto error;
 	}
 
 	rc = pcap_datalink(ifc->pcap_handle);
 	if (rc != DLT_EN10MB) {
-		log_msg(LOG_WARNING, "Skipping interface %s, invalid data link layer %s (%s).\n", 
+		log_msg(LOG_WARNING, "Skipping interface %s, invalid data link layer %s (%s).", 
 			iface,
 			pcap_datalink_val_to_name(rc),
 			pcap_datalink_val_to_description(rc));
@@ -223,14 +237,14 @@ void add_iface(char *iface)
 
 	rc = pcap_compile(ifc->pcap_handle, &ifc->pcap_filter, filter, 0, 0);
 	if (rc == -1) {
-		log_msg(LOG_WARNING, "Skipping interface %s, %s\n",
+		log_msg(LOG_WARNING, "Skipping interface %s, %s",
 			iface, pcap_geterr(ifc->pcap_handle));
 		goto error_pcap;
 	}
 
 	rc = pcap_setfilter(ifc->pcap_handle, &ifc->pcap_filter);
 	if (rc == -1) {
-		log_msg(LOG_WARNING, "Skipping iface %s, %s\n",
+		log_msg(LOG_WARNING, "Skipping iface %s, %s",
 			iface, pcap_geterr(ifc->pcap_handle));
 		goto error_filter;
 	}
@@ -311,11 +325,9 @@ void reload_cb(int fd, short events, void *arg)
 	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, sys_siglist[fd]);
 	log_msg(LOG_DEBUG, "Reopening output files");
 
-	datafile_close();
-	sqlite_close();
-
-	sqlite_init();
-	datafile_init();
+	output_flatfile_reload();
+	output_sqlite_reload();
+	output_mysql_reload();
 }
 
 #if HAVE_LIBEVENT2
@@ -450,7 +462,7 @@ int main(int argc, char *argv[])
 //	cfg.quiet = 0;
 	cfg.promisc_flag = 1;
 //	cfg.ratelimit = 0;
-//	cfg.sql_file = NULL;
+//	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
@@ -489,8 +501,9 @@ int main(int argc, char *argv[])
 	if (cfg.uname)
 		drop_root(cfg.uname);
 
-	sqlite_init();
-	datafile_init();
+	output_flatfile_init();
+	output_sqlite_init();
+	output_mysql_init();
 
 	/* main loop */
 #if HAVE_LIBEVENT2
@@ -499,8 +512,9 @@ int main(int argc, char *argv[])
 	event_dispatch();
 #endif
 
-	datafile_close();
-	sqlite_close();
+	output_mysql_close();
+	output_sqlite_close();
+	output_flatfile_close();
 
 	for (ifc = cfg.interfaces; ifc != NULL; ifc = del_iface(ifc));
 

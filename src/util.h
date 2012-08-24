@@ -11,8 +11,6 @@
 
 #include <arpa/inet.h>
 
-#define MAC_STR_LEN     18
-
 static inline void ether_ntoa_m(uint8_t addr[], char *str)
 {
 	sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",

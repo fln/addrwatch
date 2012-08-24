@@ -1,12 +1,13 @@
 AC_PREREQ([2.68])
 AC_INIT([addrwatch], [0.6], [julius.kriukas@gmail.com])
-AM_INIT_AUTOMAKE([foreign check-news silent-rules -Wall -Werror])
+AM_INIT_AUTOMAKE([-Wall foreign check-news silent-rules -Werror])
 AC_CONFIG_SRCDIR([src/addrwatch.c])
 AM_CONFIG_HEADER([src/config.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
+
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live])
@@ -28,6 +29,15 @@ argp-standalone package specify argp include search path in CPPFLAGS \
 variable with -I option. Example: ./configure CPPFLAGS="-I/usr/local/include"])
 ])
 
+AC_ARG_ENABLE([sqlite3],
+    AS_HELP_STRING([--enable-sqlite3], [Enable sqlite3 database output]),
+    AC_CHECK_LIB([sqlite3], [sqlite3_open])
+)
+AC_ARG_ENABLE([mysql],
+    AS_HELP_STRING([--enable-mysql], [Enable MySQL database output]),
+    AC_CHECK_LIB([mysqlclient], [mysql_real_connect])
+)
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h syslog.h unistd.h])
 
@@ -46,12 +56,6 @@ AC_FUNC_FORK
 AC_CHECK_FUNCS([bzero])
 
 
-AC_ARG_ENABLE([sqlite3],
-    AS_HELP_STRING([--enable-sqlite3], [Enable sqlite3 database output]))
-
-AS_IF([test "x$enable_sqlite3" = "xyes"], [
-	AC_CHECK_LIB([sqlite3], [sqlite3_open])
-])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

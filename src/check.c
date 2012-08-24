@@ -14,9 +14,6 @@
 int check_arp(struct pkt *p)
 {
 	struct ether_arp *arp;
-	char l2_addr1[MAC_STR_LEN];
-	char l2_addr2[MAC_STR_LEN];
-	char ip_addr[INET_ADDRSTRLEN];
 	char *pkt_dump;
 	int rc;
 
