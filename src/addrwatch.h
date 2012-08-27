@@ -78,6 +78,7 @@ struct addrwatch_config {
 	sqlite3_stmt *sqlite_stmt;
 #endif
 #if HAVE_LIBMYSQLCLIENT
+	uint8_t     mysql_flag;
 	char       *mysql_table;
 	MYSQL      *mysql_conn;
 	MYSQL_STMT *mysql_stmt;

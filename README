@@ -10,7 +10,7 @@ Main features of addrwatch:
 * IPv4 and IPv6 address monitoring
 * Monitoring multiple network interfaces with one daemon
 * Monitoring of VLAN tagged (802.1Q) packets.
-* Output to stdout, plain text file, syslog, sqlite3 database
+* Output to stdout, plain text file, syslog, sqlite3 db, MySQL db
 * IP address usage history preserving output/logging
 
 Addrwatch is extremely useful in networks with IPv6 autoconfiguration 

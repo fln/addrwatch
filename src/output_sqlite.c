@@ -35,7 +35,7 @@ void output_sqlite_init()
 	rc = sqlite3_prepare_v2(cfg.sqlite_conn, sql_insert, sizeof(sql_insert), 
 		&cfg.sqlite_stmt, NULL);
 	if (rc)
-		log_msg(LOG_ERR, "Error preparing ipv6 address insert statement");
+		log_msg(LOG_ERR, "Error preparing sqlite insert statement");
 
 	sqlite3_busy_timeout(cfg.sqlite_conn, 100);
 	log_msg(LOG_DEBUG, "Saving results to %s sqlite database", cfg.sqlite_file);

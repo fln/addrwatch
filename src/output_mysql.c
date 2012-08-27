@@ -27,7 +27,7 @@ void output_mysql_init()
 	char    create_query[sizeof(mysql_create_template) +64];
 	char    insert_query[sizeof(mysql_insert_template) +64];
 
-	if (!cfg.mysql_table)
+	if (!cfg.mysql_flag)
 		return;
 
 	snprintf(create_query, sizeof(create_query), mysql_create_template, cfg.mysql_table);
