@@ -9,13 +9,13 @@ static const char mysql_create_template[] = "\
 CREATE TABLE IF NOT EXISTS `%s` (\
 	`tstamp` timestamp NOT NULL,\
 	`interface` varchar(16) NOT NULL,\
-	`vlan` int(11) NOT NULL,\
+	`vlan_tag` int(11) NOT NULL,\
 	`mac_address` varchar(17) NOT NULL,\
 	`ip_address` varchar(42) NOT NULL,\
 	`origin` varchar(8) NOT NULL,\
 	KEY `interface` (`interface`),\
-	KEY `vlan` (`vlan`),\
-	KEY `interface_vlan` (`interface`,`vlan`)\
+	KEY `vlan_tag` (`vlan_tag`),\
+	KEY `interface_vlan_tag` (`interface`,`vlan_tag`)\
 )";
 
 static const char mysql_insert_template[] = "INSERT INTO `%s` VALUES(FROM_UNIXTIME(?), ?, ?, ?, ?, ?)";

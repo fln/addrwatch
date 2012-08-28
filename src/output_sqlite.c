@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 
-static const char sql_create[] = "\
-CREATE TABLE IF NOT EXISTS addrwatch(\
+static const char sqlite_create_template[] = "\
+CREATE TABLE IF NOT EXISTS %s(\
 timestamp UNSIGNED BIG INT, \
 interface varchar(16), \
 vlan_tag UNSIGNED INT, \
@@ -13,26 +13,35 @@ ip_address varchar(42), \
 origin TINYINT\
 );";
 
-static const char sql_insert[] = "INSERT INTO addrwatch VALUES(?, ?, ?, ?, ?, ?);";
+static const char sqlite_insert_template[] = "INSERT INTO %s VALUES(?, ?, ?, ?, ?, ?);";
 
 void output_sqlite_init()
 {
 #if HAVE_LIBSQLITE3
-	int rc;
+	int  rc;
+	char create_query[sizeof(sqlite_create_template) +64];
+	char insert_query[sizeof(sqlite_insert_template) +64];
 
 	if(!cfg.sqlite_file)
 		return;
+	
+	snprintf(create_query, sizeof(create_query), sqlite_create_template, cfg.sqlite_table);
+	snprintf(insert_query, sizeof(insert_query), sqlite_insert_template, cfg.sqlite_table);
 
 	rc = sqlite3_open(cfg.sqlite_file, &cfg.sqlite_conn);
 	if (rc)
 		log_msg(LOG_ERR, "Unable to open sqlite3 database file %s",
 			cfg.sqlite_file);
 
-	rc = sqlite3_exec(cfg.sqlite_conn, sql_create, 0, 0, 0);
+	log_msg(LOG_DEBUG, "Using sqlite create query: %s",
+			create_query);
+	rc = sqlite3_exec(cfg.sqlite_conn, create_query, 0, 0, 0);
 	if (rc)
 		log_msg(LOG_ERR, "Error creating table `addrwatch` in sqlite3 database");
 
-	rc = sqlite3_prepare_v2(cfg.sqlite_conn, sql_insert, sizeof(sql_insert), 
+	log_msg(LOG_DEBUG, "Using sqlite insert query: %s",
+			insert_query);
+	rc = sqlite3_prepare_v2(cfg.sqlite_conn, insert_query, sizeof(insert_query), 
 		&cfg.sqlite_stmt, NULL);
 	if (rc)
 		log_msg(LOG_ERR, "Error preparing sqlite insert statement");

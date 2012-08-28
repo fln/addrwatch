@@ -5,7 +5,7 @@
 addrwatch \- ethernet/ip address monitoring tool
 .SH SYNOPSIS
 .B addrwatch
-.B [\-lqv46dP?V]
+.B [\-lmqv46dP?V]
 .BI "[-o " file ]
 .BI "[-s " sqlite3.db ]
 .BI "[-b " ip ]
@@ -13,6 +13,7 @@ addrwatch \- ethernet/ip address monitoring tool
 .BI "[-r " num ]
 .BI "[-p " pidfile ]
 .BI "[-u " user ]
+.BI "[--mysql-table=" TBL ]
 .BI "[" INTERFACE1 " " INTERFACE2 " " ... "]"
 .SH DESCRIPTION
 .B addrwatch
@@ -41,25 +42,65 @@ See
 .B OUTPUT
 section for more details.
 .TP
+.BI "-m, --mysql"
+Write discovered ethernet/ip address pairings to MySQL database. MySQL server, 
+login information and database should be specified in 
+.B "~/.my.cnf"
+configuration file in 
+.B "addrwatch"
+section. Example of 
+.B "~/.my.cnf"
+configuration file:
+.nf
+.in +4
+[addrwatch]
+.RI "host=" "localhost"
+.RI "user=" "db_user"
+.RI "password=" "db_password"
+.RI "database=" "db_name"
+.in -4
+.fi
+Option
+.B database
+is mandatory and must be specified.
+
+Pairings are written in a table having such schema:
+.nf
+.in +4
+CREATE TABLE IF NOT EXISTS `addrwatch` (
+.in +4
+`tstamp` timestamp NOT NULL,
+`interface` varchar(16) NOT NULL,
+`vlan_tag` int(11) NOT NULL,
+`mac_address` varchar(17) NOT NULL,
+`ip_address` varchar(42) NOT NULL,
+`origin` varchar(8) NOT NULL,
+KEY `interface` (`interface`),
+KEY `vlan_tag` (`vlan_tag`),
+KEY `interface_vlan_tag` (`interface`,`vlan_tag`)
+.in -4
+)
+.in -4
+.fi
+Default table name is 
+.B addrwatch
+unless option
+.B "--mysql-table"
+is specified.
+.TP
+.BI "--mysql-table=" "TBL"
+Insert data to MySQL table 
+.IR TBL .
+.TP
 .BI "-s " "sqlite3.db" ", --sqlite3=" "sqlite3.db"
 Write discovered ethernet/ip address pairings to sqlite3 database in
 .I sqlite3.db
 file. Database file and tables are created during startup if does not exists.
 
-Pairings are written in two separate tables (by protocol) having such schemas:
+Pairings are written in a table having such schema:
 .nf
 .in +4
-CREATE TABLE ip4(
-.in +4
-timestamp UNSIGNED BIG INT,
-interface varchar(16),
-vlan_tag UNSIGNED INT,
-mac_address varchar(17),
-ip_address varchar(16),
-origin TINYINT
-.in -4
-);
-CREATE TABLE ip6(
+CREATE TABLE addrwatch(
 .in +4
 timestamp UNSIGNED BIG INT,
 interface varchar(16),

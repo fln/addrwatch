@@ -74,6 +74,7 @@ struct addrwatch_config {
 
 #if HAVE_LIBSQLITE3
 	char *sqlite_file;
+	char *sqlite_table;
 	sqlite3      *sqlite_conn;
 	sqlite3_stmt *sqlite_stmt;
 #endif

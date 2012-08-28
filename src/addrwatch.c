@@ -41,6 +41,7 @@ static struct argp_option options[] = {
 #endif
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
+	{"sqlite3-table", 2, "TBL",  0, "Use sqlite table TBL (default: " PACKAGE")." },
 #endif
 	{0, 0, 0, 0, "Options for data filtering:" },
 	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets." },
@@ -110,6 +111,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 #if HAVE_LIBSQLITE3
 	case 's':
 		cfg.sqlite_file = arg;
+		break;
+	case 2:
+		cfg.sqlite_table = arg;
 		break;
 #endif
 #if HAVE_LIBMYSQLCLIENT
@@ -465,6 +469,7 @@ int main(int argc, char *argv[])
 //	cfg.ratelimit = 0;
 //	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
+	cfg.sqlite_table = PACKAGE;
 	cfg.mysql_table = PACKAGE;
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
