@@ -90,9 +90,10 @@ If you have already deleted the addrwatch sources, you can manually remove
 addrwatch from the system with command::
 
  $ rm /usr/local/bin/addrwatch
+ $ rm /usr/local/share/man/man8/addrwatch.8
 
-This is the only installed file by the addrwatch. If you have specified --prefix
-argument to configure script substitute /us/local/bin with the prefix path used.
+If you have specified --prefix argument to configure script substitute 
+/usr/local with the prefix path used.
 
 Usage
 =====

@@ -471,9 +471,13 @@ int main(int argc, char *argv[])
 //	cfg.ratelimit = 0;
 //	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
+#if HAVE_LIBSQLITE3
 	cfg.sqlite_table = PACKAGE;
+#endif
+#if HAVE_LIBMYSQLCLIENT
 //	cfg.mysql_db = NULL;
 	cfg.mysql_table = PACKAGE;
+#endif
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 

@@ -1,3 +1,7 @@
+Version 0.7
+
+  * MySQL database output support.
+
 Version 0.6
 
   * Fixed configure script and source code to compile on FreeBSD.
