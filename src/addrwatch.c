@@ -36,8 +36,8 @@ static struct argp_option options[] = {
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 	{"verbose",   'v', 0,      0, "Enable debug messages." },
 #if HAVE_LIBMYSQLCLIENT
-	{"mysql",     'm', 0,      0, "Output data to MySQL database." },
-	{"mysql-table", 1, "TBL",  0, "Use MySQL table TBL (default: " PACKAGE")." },
+	{"mysql",     'm', "DB",      OPTION_ARG_OPTIONAL, "Output data to MySQL database DB (default is DB from ~/.my.cnf)." },
+	{"mysql-table", 1, "TBL",  0, "Use MySQL table TBL (default: " PACKAGE ")." },
 #endif
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
@@ -119,6 +119,8 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 #if HAVE_LIBMYSQLCLIENT
 	case 'm':
 		cfg.mysql_flag = 1;
+		if (arg)
+			cfg.mysql_db = arg;
 		break;
 	case 1:
 		cfg.mysql_table = arg;
@@ -470,6 +472,7 @@ int main(int argc, char *argv[])
 //	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
 	cfg.sqlite_table = PACKAGE;
+//	cfg.mysql_db = NULL;
 	cfg.mysql_table = PACKAGE;
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);

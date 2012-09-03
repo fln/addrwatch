@@ -6,6 +6,7 @@ addrwatch \- ethernet/ip address monitoring tool
 .SH SYNOPSIS
 .B addrwatch
 .B [\-lmqv46dP?V]
+.BI "[-m[" database "]]"
 .BI "[-o " file ]
 .BI "[-s " sqlite3.db ]
 .BI "[-b " ip ]
@@ -13,7 +14,8 @@ addrwatch \- ethernet/ip address monitoring tool
 .BI "[-r " num ]
 .BI "[-p " pidfile ]
 .BI "[-u " user ]
-.BI "[--mysql-table=" TBL ]
+.BI "[--mysql-table=" table "]"
+.BI "[--sqlite3-table=" table "]"
 .BI "[" INTERFACE1 " " INTERFACE2 " " ... "]"
 .SH DESCRIPTION
 .B addrwatch
@@ -42,9 +44,10 @@ See
 .B OUTPUT
 section for more details.
 .TP
-.BI "-m, --mysql"
-Write discovered ethernet/ip address pairings to MySQL database. MySQL server, 
-login information and database should be specified in 
+.BI "-m[" database "], --mysql=[" database "]"
+Write discovered ethernet/ip address pairings to MySQL
+.IR database .
+Default MySQL server, login information and database should be specified in 
 .B "~/.my.cnf"
 configuration file in 
 .B "addrwatch"
@@ -60,9 +63,6 @@ configuration file:
 .RI "database=" "db_name"
 .in -4
 .fi
-Option
-.B database
-is mandatory and must be specified.
 
 Pairings are written in a table having such schema:
 .nf
