@@ -11,10 +11,16 @@ AC_PROG_INSTALL
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live])
-PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], [ ])
+
+PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], , [
+	AC_CHECK_LIB([event], [event_dispatch], , [
+		AC_MSG_ERROR([Please install libevent-1.4 or libevent-2.0])
+	])
+])
+
 PKG_CHECK_MODULES(LIBEVENT2, [libevent >= 2.0], [
 	AC_DEFINE([HAVE_LIBEVENT2], 1, [Define to 1 if you have libevent2])
-])
+], [ ])
 
 
 AC_SEARCH_LIBS([argp_parse], [argp], , [
