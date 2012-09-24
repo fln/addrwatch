@@ -14,6 +14,7 @@ addrwatch \- ethernet/ip address monitoring tool
 .BI "[-r " num ]
 .BI "[-p " pidfile ]
 .BI "[-u " user ]
+.BI "[-h " hostname ]
 .BI "[--mysql-table=" table "]"
 .BI "[--sqlite3-table=" table "]"
 .BI "[" INTERFACE1 " " INTERFACE2 " " ... "]"
@@ -70,6 +71,7 @@ Pairings are written in a table having such schema:
 CREATE TABLE IF NOT EXISTS `addrwatch` (
 .in +4
 `tstamp` timestamp NOT NULL,
+`hostname` varchar(256) NOT NULL,
 `interface` varchar(16) NOT NULL,
 `vlan_tag` int(11) NOT NULL,
 `mac_address` varchar(17) NOT NULL,
@@ -163,6 +165,9 @@ Lager hash table speeds up cache lookups at the cost of increased memory usage.
 Become a daemon after start. This option implies
 .BR "-q" " (" "--quiet" ")"
 argument.
+.TP
+.BI "-h " "hostname" ", --hostname=" "hostname"
+Override system hostname.
 .TP
 .BI "-p " "pidfile" ", --pid=" "pidfile"
 Write process id to

@@ -54,6 +54,7 @@ static struct argp_option options[] = {
 	{"pid",       'p', "FILE", 0, "Write process id to FILE." },
 	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces." },
 	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces." },
+	{"hostname",  'h', "HOSTNAME", 0, "Use HOSTNAME instead of real machine hostname." },
 	{ 0 }
 };
 
@@ -128,6 +129,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 #endif
 	case 'u':
 		cfg.uname = arg;
+		break;
+	case 'h':
+		cfg.hostname = strdup(arg);
+		cfg.hostname_len = strlen(arg) + 1;
 		break;
 	case 'v':
 		cfg.verbose_flag = 1;
@@ -481,6 +486,12 @@ int main(int argc, char *argv[])
 
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 
+	if (!cfg.hostname) {
+		cfg.hostname_len = sysconf(_SC_HOST_NAME_MAX);
+		cfg.hostname = (char *)calloc(cfg.hostname_len, sizeof(char));
+		gethostname(cfg.hostname, cfg.hostname_len);
+	}
+
 	daemonize();
 	save_pid();
 
@@ -538,6 +549,8 @@ int main(int argc, char *argv[])
 
 	del_pid();
 	blacklist_free();
+
+	free(cfg.hostname);
 
 	return 0;
 }

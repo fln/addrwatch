@@ -8,6 +8,7 @@
 static const char mysql_create_template[] = "\
 CREATE TABLE IF NOT EXISTS `%s` (\
 	`tstamp` timestamp NOT NULL,\
+	`hostname` varchar(256) NOT NULL,\
 	`interface` varchar(16) NOT NULL,\
 	`vlan_tag` int(11) NOT NULL,\
 	`mac_address` varchar(17) NOT NULL,\
@@ -18,7 +19,16 @@ CREATE TABLE IF NOT EXISTS `%s` (\
 	KEY `interface_vlan_tag` (`interface`,`vlan_tag`)\
 )";
 
-static const char mysql_insert_template[] = "INSERT INTO `%s` VALUES(FROM_UNIXTIME(?), ?, ?, ?, ?, ?)";
+static const char mysql_insert_template[] = "\
+INSERT INTO `%s`(\
+	`tstamp`,\
+	`hostname`, \
+	`interface`,\
+	`vlan_tag`,\
+	`mac_address`,\
+	`ip_address`,\
+	`origin`\
+) VALUES(FROM_UNIXTIME(?), ?, ?, ?, ?, ?, ?)";
 
 void output_mysql_init()
 {
@@ -71,29 +81,36 @@ void output_mysql_init()
 	cfg.mysql_bind[0].length = 0;
 
 	cfg.mysql_bind[1].buffer_type = MYSQL_TYPE_VAR_STRING;
-	cfg.mysql_bind[1].buffer = cfg.mysql_vars.iface;
+	cfg.mysql_bind[1].buffer = cfg.mysql_vars.hostname;
 	cfg.mysql_bind[1].is_null = 0;
-	cfg.mysql_bind[1].length = &cfg.mysql_vars.iface_len;
+	cfg.mysql_bind[1].length = &cfg.mysql_vars.hostname_len;
 
-	cfg.mysql_bind[2].buffer_type = MYSQL_TYPE_LONG;
-	cfg.mysql_bind[2].buffer = &cfg.mysql_vars.vlan;
+	cfg.mysql_bind[2].buffer_type = MYSQL_TYPE_VAR_STRING;
+	cfg.mysql_bind[2].buffer = cfg.mysql_vars.iface;
 	cfg.mysql_bind[2].is_null = 0;
-	cfg.mysql_bind[2].length = 0;
+	cfg.mysql_bind[2].length = &cfg.mysql_vars.iface_len;
 
-	cfg.mysql_bind[3].buffer_type = MYSQL_TYPE_VAR_STRING;
-	cfg.mysql_bind[3].buffer = cfg.mysql_vars.mac;
+	cfg.mysql_bind[3].buffer_type = MYSQL_TYPE_LONG;
+	cfg.mysql_bind[3].buffer = &cfg.mysql_vars.vlan;
 	cfg.mysql_bind[3].is_null = 0;
-	cfg.mysql_bind[3].length = &cfg.mysql_vars.mac_len;
+	cfg.mysql_bind[3].length = 0;
 
+	//cfg.mysql_vars.mac_len = ETHER_ADDR_LEN;
+	//cfg.mysql_bind[3].buffer_type = MYSQL_TYPE_STRING;
 	cfg.mysql_bind[4].buffer_type = MYSQL_TYPE_VAR_STRING;
-	cfg.mysql_bind[4].buffer = cfg.mysql_vars.ip;
+	cfg.mysql_bind[4].buffer = cfg.mysql_vars.mac;
 	cfg.mysql_bind[4].is_null = 0;
-	cfg.mysql_bind[4].length = &cfg.mysql_vars.ip_len;
+	cfg.mysql_bind[4].length = &cfg.mysql_vars.mac_len;
 
 	cfg.mysql_bind[5].buffer_type = MYSQL_TYPE_VAR_STRING;
-	cfg.mysql_bind[5].buffer = cfg.mysql_vars.origin;
+	cfg.mysql_bind[5].buffer = cfg.mysql_vars.ip;
 	cfg.mysql_bind[5].is_null = 0;
-	cfg.mysql_bind[5].length = &cfg.mysql_vars.origin_len;
+	cfg.mysql_bind[5].length = &cfg.mysql_vars.ip_len;
+
+	cfg.mysql_bind[6].buffer_type = MYSQL_TYPE_VAR_STRING;
+	cfg.mysql_bind[6].buffer = cfg.mysql_vars.origin;
+	cfg.mysql_bind[6].is_null = 0;
+	cfg.mysql_bind[6].length = &cfg.mysql_vars.origin_len;
 
 	if (mysql_stmt_bind_param(cfg.mysql_stmt, cfg.mysql_bind))
 		log_msg(LOG_ERR, "Error binding MySQL statement object: %s",
@@ -116,11 +133,15 @@ void output_mysql_save(struct pkt *p, char *mac_str, char *ip_str)
 	
 	cfg.mysql_vars.timestamp = p->pcap_header->ts.tv_sec;
 
+	strncpy(cfg.mysql_vars.hostname, cfg.hostname, sizeof(cfg.mysql_vars.hostname));
+	cfg.mysql_vars.hostname_len = strnlen(cfg.mysql_vars.hostname, sizeof(cfg.mysql_vars.hostname));
+
 	strncpy(cfg.mysql_vars.iface, p->ifc->name, sizeof(cfg.mysql_vars.iface));
 	cfg.mysql_vars.iface_len = strnlen(cfg.mysql_vars.iface, sizeof(cfg.mysql_vars.iface));
 
 	cfg.mysql_vars.vlan = p->vlan_tag;
 
+	//memcpy(cfg.mysql_vars.mac, p->l2_addr, ETHER_ADDR_LEN);
 	strcpy(cfg.mysql_vars.mac, mac_str);
 	cfg.mysql_vars.mac_len = strlen(mac_str);
 
@@ -146,6 +167,7 @@ void output_mysql_close()
 		mysql_close(cfg.mysql_conn);
 		cfg.mysql_conn = NULL;
 	}
+
 	mysql_library_end();
 #endif
 }

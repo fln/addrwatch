@@ -65,6 +65,8 @@ struct addrwatch_config {
 	uint8_t verbose_flag;
 
 	char *uname;
+	long  hostname_len;
+	char *hostname;
 
 	struct ip_node *blacklist;
 	
@@ -87,9 +89,12 @@ struct addrwatch_config {
 	MYSQL_BIND  mysql_bind[6];
 	struct {
 		long long int timestamp;
+		char          hostname[256];
+		unsigned long hostname_len;
 		char          iface[IFNAMSIZ];
 		unsigned long iface_len;
 		int           vlan;
+		//char          mac[ETHER_ADDR_LEN];
 		char          mac[MAC_STR_LEN];
 		unsigned long mac_len;
 		char          ip[INET6_ADDRSTRLEN];
