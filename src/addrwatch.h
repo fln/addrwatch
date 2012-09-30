@@ -74,6 +74,11 @@ struct addrwatch_config {
 	char *data_file;
 	FILE *data_fd;
 
+	struct {
+		struct shm_log *log;
+		uint64_t        size;
+	} shm_data;
+
 #if HAVE_LIBSQLITE3
 	char *sqlite_file;
 	char *sqlite_table;

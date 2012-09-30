@@ -20,6 +20,7 @@
 #include "output_flatfile.h"
 #include "output_sqlite.h"
 #include "output_mysql.h"
+#include "output_shm.h"
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
@@ -31,6 +32,7 @@ address blacklisting opetion '-b' can be used multiple times.";
 
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
+	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ")." },
 	{"syslog",    'l', 0,      0, "Output data to syslog (daemon facility)." },
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
@@ -88,6 +90,11 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 	case 'H':
 		cfg.hashsize = atoi(arg);
+		break;
+	case 'L':
+		cfg.shm_data.size = atoi(arg);
+		if (cfg.shm_data.size < 1)
+			cfg.shm_data.size = 1;
 		break;
 	case 'l':
 		cfg.syslog_flag = 1;
@@ -340,6 +347,7 @@ void reload_cb(int fd, short events, void *arg)
 	output_flatfile_reload();
 	output_sqlite_reload();
 	output_mysql_reload();
+	output_shm_reload();
 }
 
 #if HAVE_LIBEVENT2
@@ -476,6 +484,7 @@ int main(int argc, char *argv[])
 //	cfg.ratelimit = 0;
 //	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
+	cfg.shm_data.size = DEFAULT_SHM_LOG_SIZE;
 #if HAVE_LIBSQLITE3
 	cfg.sqlite_table = PACKAGE;
 #endif
@@ -529,6 +538,7 @@ int main(int argc, char *argv[])
 	output_flatfile_init();
 	output_sqlite_init();
 	output_mysql_init();
+	output_shm_init();
 
 	/* main loop */
 #if HAVE_LIBEVENT2
@@ -537,6 +547,7 @@ int main(int argc, char *argv[])
 	event_dispatch();
 #endif
 
+	output_shm_close();
 	output_mysql_close();
 	output_sqlite_close();
 	output_flatfile_close();

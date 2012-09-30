@@ -4,6 +4,7 @@
 #include "output_flatfile.h"
 #include "output_sqlite.h"
 #include "output_mysql.h"
+#include "output_shm.h"
 
 #include <stdlib.h>
 
@@ -118,6 +119,7 @@ void save_pairing(struct pkt *p)
 	else
 		ip4_ntoa(p->ip_addr, ip_str);
 
+	output_shm_save(p, mac_str, ip_str);
 	if (!cfg.quiet) {
 		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name, p->vlan_tag, 
 			mac_str, ip_str, pkt_origin_str[p->origin]);
