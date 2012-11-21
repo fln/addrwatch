@@ -22,19 +22,11 @@
 #include <netinet/icmp6.h>
 #include <netinet/if_ether.h>
 
+#include "common.h"
 #include "mcache.h"
 
 #define SNAP_LEN       9000
 #define MAC_STR_LEN    18
-
-enum pkt_origin {
-	ARP_REQ,
-	ARP_REP,
-	ARP_ACD,
-	ND_NS,
-	ND_NA,
-	ND_DAD,
-};
 
 struct iface_config {
 	char *name;
