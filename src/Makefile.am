@@ -5,6 +5,6 @@ addrwatch_stdout_SOURCES = addrwatch_stdout.c
 
 noinst_HEADERS = addrwatch.h util.h parse.h check.h process.h base64.h storage.h mcache.h output_flatfile.h output_sqlite.h output_mysql.h output_shm.h shm.h common.h
 
-AM_CFLAGS = @LIBEVENT_CFLAGS@
-LDADD = @LIBEVENT_LIBS@
+addrwatch_LDADD = @LIBEVENT_LIBS@
+addrwatch_stdout_LDADD = -lrt
 
