@@ -10,7 +10,9 @@ AC_PROG_INSTALL
 
 
 # Checks for libraries.
-AC_CHECK_LIB([pcap], [pcap_open_live])
+AC_CHECK_LIB([pcap], [pcap_open_live], , [
+	AC_MSG_ERROR([Please install libpcap and libpcap development files])
+])
 
 PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], , [
 	AC_CHECK_LIB([event], [event_dispatch], , [
