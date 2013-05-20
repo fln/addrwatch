@@ -3,7 +3,9 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 
 void output_shm_init()
 {
@@ -48,7 +50,7 @@ void output_shm_save(struct pkt *p, char *mac_str, char *ip_str)
 	e = &log->data[idx];
 
 	e->timestamp = p->pcap_header->ts.tv_sec;
-	strncpy(e->interface, p->ifc->name, IFNAMSIZ);
+	strncpy((char *)e->interface, p->ifc->name, IFNAMSIZ);
 	memcpy(e->ip_address, p->ip_addr, p->ip_len);
 	memcpy(e->mac_address, p->l2_addr, sizeof(e->mac_address));
 	e->ip_len = p->ip_len;

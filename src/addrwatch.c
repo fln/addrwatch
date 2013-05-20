@@ -441,8 +441,12 @@ void del_pid()
 
 void daemonize()
 {
-	pid_t pid, sid;
-
+//	pid_t pid, sid;
+	if (daemon(0, 0)) 
+		log_msg(LOG_ERR, "Failed to become a daemon: %s", strerror(errno));
+	
+	log_syslog_only(1);
+/*
 	if (cfg.daemon_flag) {
 		pid = fork();
 
@@ -462,7 +466,7 @@ void daemonize()
 	if (cfg.quiet) {
 		fclose(stdout);
 		fclose(stderr);
-	}
+	}*/
 }
 
 int main(int argc, char *argv[])
@@ -493,6 +497,7 @@ int main(int argc, char *argv[])
 	cfg.mysql_table = PACKAGE;
 #endif
 
+	log_open(PACKAGE_NAME);
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 
 	if (!cfg.hostname) {
@@ -504,7 +509,6 @@ int main(int argc, char *argv[])
 	daemonize();
 	save_pid();
 
-	log_open();
 	libevent_init();
 
 

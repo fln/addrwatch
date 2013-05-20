@@ -6,6 +6,14 @@
 
 #include <syslog.h>
 
+struct log_ctx_s {
+	int   syslog_only;
+	int   max_priority;
+	char *ident;
+};
+
+static struct log_ctx_s _ctx;
+
 const char *log_level[] = {
 	"EMERG",
 	"ALERT",
@@ -17,11 +25,25 @@ const char *log_level[] = {
 	"DEBUG",
 };
 
-void log_open()
+void log_open(char *ident)
 {
 	int flags = 0;
 
-	openlog(PACKAGE_NAME, flags, LOG_DAEMON);
+	memset(&_ctx, 0, sizeof(_ctx));
+	_ctx.ident = ident;
+	_ctx.max_priority = LOG_DEBUG;
+
+	openlog(ident, flags, LOG_DAEMON);
+}
+
+void log_max_priority(int priority)
+{
+	_ctx.max_priority = priority;
+}
+
+void log_syslog_only(int flag)
+{
+	_ctx.syslog_only = flag;
 }
 
 void log_msg(int priority, const char *format, ...)
@@ -35,10 +57,10 @@ void log_msg(int priority, const char *format, ...)
 	//LOG_INFO
 	//LOG_DEBUG
 
-	if (priority < LOG_CRIT || priority > LOG_DEBUG)
+	if (priority < LOG_EMERG || priority > LOG_DEBUG)
 		return;
 
-	if (priority == LOG_DEBUG && !cfg.verbose_flag)
+	if (priority > _ctx.max_priority)
 		return;
 
 	va_start (pvar, format);
@@ -47,10 +69,10 @@ void log_msg(int priority, const char *format, ...)
 
 	syslog(priority, "%s: %s", log_level[priority], buffer);
 
-	if (priority != LOG_INFO && !cfg.quiet)
-		fprintf(stderr, "%s: %s: %s\n", PACKAGE_NAME, log_level[priority], buffer);
+	if (!_ctx.syslog_only)
+		fprintf(stderr, "%s: %s: %s\n", _ctx.ident, log_level[priority], buffer);
 
-	if (priority == LOG_ERR) {
+	if (priority <= LOG_ERR) {
 		log_close();
 		exit(EXIT_FAILURE);
 	}

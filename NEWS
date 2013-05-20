@@ -1,3 +1,10 @@
+Version 1.0
+
+  * Main daemon writes to shared memory segment.
+  * Ouput modules is now separate processes reading from shared memory.
+  * MySQL output module save IP and MAC addresses in binary form.
+  * MySQL output module uses two tables ant one view instead of one table.
+
 Version 0.7
 
   * MySQL database output support.

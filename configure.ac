@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([addrwatch], [0.7], [julius.kriukas@gmail.com])
+AC_INIT([addrwatch], [1.0], [julius.kriukas@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign check-news silent-rules -Werror])
 AC_CONFIG_SRCDIR([src/addrwatch.c])
 AM_CONFIG_HEADER([src/config.h])
@@ -8,6 +8,8 @@ AM_CONFIG_HEADER([src/config.h])
 AC_PROG_CC
 AC_PROG_INSTALL
 
+optional_modules=""
+AC_SUBST([optional_modules])
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live])
@@ -34,6 +36,7 @@ AC_CHECK_HEADERS([argp.h], , [
 argp-standalone package specify argp include search path in CPPFLAGS \
 variable with -I option. Example: ./configure CPPFLAGS="-I/usr/local/include"])
 ])
+AC_CHECK_HEADERS([nananas.h])
 
 AC_ARG_ENABLE([sqlite3],
     AS_HELP_STRING([--enable-sqlite3], [Enable sqlite3 database output]),
@@ -46,6 +49,7 @@ AC_ARG_ENABLE([mysql],
     AC_CHECK_LIB([mysqlclient], [mysql_real_connect], , [
     	AC_MSG_ERROR([Unable to find libmysqlclient.])
     ])
+    optional_modules="${optional_modules} addrwatch_mysql"
 )
 
 # Checks for header files.

@@ -2,6 +2,8 @@
 #include "shm_client.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <syslog.h>
 #include <netinet/in.h>
 
 void process_entry(struct shm_log_entry *e, void *arg)
@@ -15,13 +17,18 @@ void process_entry(struct shm_log_entry *e, void *arg)
 	else
 		ip4_ntoa(e->ip_address, ip_str);
 
-	printf("%lu %s %u %s %s %s\n", e->timestamp, e->interface, e->vlan_tag, 
-	                        mac_str, ip_str, pkt_origin_str[e->origin]);
+	syslog(LOG_INFO, "%lu %s %u %s %s %s", e->timestamp, e->interface,
+		e->vlan_tag, mac_str, ip_str, pkt_origin_str[e->origin]);
 
 }
 
 int main(int argc, char *argv[])
 {
+	int flags = 0;
+
+	openlog("addrwatch", flags, LOG_DAEMON);
+
 	main_loop(process_entry, NULL);
 
+	closelog();
 }
