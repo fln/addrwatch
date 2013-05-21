@@ -51,6 +51,13 @@ void output_mysql_init()
 	if (!cfg.mysql_conn)
 		log_msg(LOG_ERR, "Error allocating MySQL object");
 	
+	if (cfg.mysql_config) {
+		if (mysql_options(cfg.mysql_conn, MYSQL_READ_DEFAULT_FILE, cfg.mysql_config)) {
+			log_msg(LOG_ERR, "Failed to read config file %s: %s",
+					cfg.mysql_config, mysql_error(cfg.mysql_conn));
+		}
+	}
+	
 	mysql_options(cfg.mysql_conn, MYSQL_READ_DEFAULT_GROUP, PACKAGE);
 	if (!mysql_real_connect(cfg.mysql_conn, NULL, NULL, NULL, cfg.mysql_db, 0, NULL, 0))
 		log_msg(LOG_ERR, "Failed to connect to database: Error: %s", 

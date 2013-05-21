@@ -38,6 +38,7 @@ static struct argp_option options[] = {
 #if HAVE_LIBMYSQLCLIENT
 	{"mysql",     'm', "DB",      OPTION_ARG_OPTIONAL, "Output data to MySQL database DB (default is DB from ~/.my.cnf)." },
 	{"mysql-table", 1, "TBL",  0, "Use MySQL table TBL (default: " PACKAGE ")." },
+	{"mysql-config", 'c',"FILE",  0, "Use FILE for MySQL client configuration." },
 #endif
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
@@ -126,6 +127,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 	case 1:
 		cfg.mysql_table = arg;
 		break;
+	case 'c':
+		cfg.mysql_config = arg;
+		break;
 #endif
 	case 'u':
 		cfg.uname = arg;
@@ -156,7 +160,8 @@ void drop_root(const char *uname)
 	
 	if (initgroups(uname, pw->pw_gid) != 0
 		|| setgid(pw->pw_gid) != 0
-		|| setuid(pw->pw_uid) != 0)
+		|| setuid(pw->pw_uid) != 0
+		|| setenv("HOME", pw->pw_dir, 1) != 0)
 		log_msg(LOG_ERR, "Unable to setuid to %s, uid=%d, gid=%d",
 			uname, pw->pw_uid, pw->pw_gid);
 

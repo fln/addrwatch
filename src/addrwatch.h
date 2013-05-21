@@ -83,6 +83,7 @@ struct addrwatch_config {
 #if HAVE_LIBMYSQLCLIENT
 	uint8_t     mysql_flag;
 	char       *mysql_db;
+	char       *mysql_config;
 	char       *mysql_table;
 	MYSQL      *mysql_conn;
 	MYSQL_STMT *mysql_stmt;
