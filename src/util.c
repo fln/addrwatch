@@ -31,7 +31,7 @@ void log_open(char *ident)
 
 	memset(&_ctx, 0, sizeof(_ctx));
 	_ctx.ident = ident;
-	_ctx.max_priority = LOG_DEBUG;
+	_ctx.max_priority = LOG_NOTICE;
 
 	openlog(ident, flags, LOG_DAEMON);
 }

@@ -142,7 +142,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		cfg.hostname_len = strlen(arg) + 1;
 		break;
 	case 'v':
-		cfg.verbose_flag = 1;
+		log_max_priority(LOG_DEBUG);
 		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
@@ -442,10 +442,13 @@ void del_pid()
 void daemonize()
 {
 //	pid_t pid, sid;
-	if (daemon(0, 0)) 
-		log_msg(LOG_ERR, "Failed to become a daemon: %s", strerror(errno));
+	if (cfg.daemon_flag) {
+		if (daemon(0, 0)) 
+			log_msg(LOG_ERR, "Failed to become a daemon: %s", strerror(errno));
+
+		log_syslog_only(1);
+	}
 	
-	log_syslog_only(1);
 /*
 	if (cfg.daemon_flag) {
 		pid = fork();
