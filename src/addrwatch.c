@@ -32,7 +32,6 @@ address blacklisting opetion '-b' can be used multiple times.";
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
 	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ")." },
-	{"syslog",    'l', 0,      0, "Output data to syslog (daemon facility)." },
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 	{"verbose",   'v', 0,      0, "Enable debug messages." },
@@ -90,9 +89,6 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		cfg.shm_data.size = atoi(arg);
 		if (cfg.shm_data.size < 1)
 			cfg.shm_data.size = 1;
-		break;
-	case 'l':
-		cfg.syslog_flag = 1;
 		break;
 	case 'o':
 		cfg.data_file = arg;

@@ -49,7 +49,6 @@ struct addrwatch_config {
 	int promisc_flag;
 	uint8_t v4_flag;
 	uint8_t v6_flag;
-	uint8_t syslog_flag;
 	uint8_t daemon_flag;
 	uint8_t verbose_flag;
 

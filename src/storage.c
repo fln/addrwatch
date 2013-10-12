@@ -125,9 +125,6 @@ void save_pairing(struct pkt *p)
 		fflush(stdout);
 	}
 
-	if (cfg.syslog_flag)
-		log_msg(LOG_INFO, "%lu %s %u %s %s %s", tstamp, p->ifc->name, p->vlan_tag, mac_str, ip_str, pkt_origin_str[p->origin]);
-
 	if (cfg.data_fd)
 		output_flatfile_save(p, mac_str, ip_str);
 
