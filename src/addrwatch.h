@@ -10,9 +10,6 @@
 #if HAVE_LIBSQLITE3
 	#include <sqlite3.h>
 #endif
-#if HAVE_LIBMYSQLCLIENT
-	#include <mysql/mysql.h>
-#endif
 
 #include <net/ethernet.h>
 #include <net/if.h>
@@ -77,30 +74,6 @@ struct addrwatch_config {
 	sqlite3      *sqlite_conn;
 	sqlite3_stmt *sqlite_stmt;
 #endif
-#if HAVE_LIBMYSQLCLIENT
-	uint8_t     mysql_flag;
-	char       *mysql_db;
-	char       *mysql_table;
-	MYSQL      *mysql_conn;
-	MYSQL_STMT *mysql_stmt;
-	MYSQL_BIND  mysql_bind[6];
-	struct {
-		long long int timestamp;
-		char          hostname[256];
-		unsigned long hostname_len;
-		char          iface[IFNAMSIZ];
-		unsigned long iface_len;
-		int           vlan;
-		//char          mac[ETHER_ADDR_LEN];
-		char          mac[MAC_STR_LEN];
-		unsigned long mac_len;
-		char          ip[INET6_ADDRSTRLEN];
-		unsigned long ip_len;
-		char          origin[8];
-		unsigned long origin_len;
-	} mysql_vars;
-#endif
-
 	struct event_base *eb;
 #if HAVE_LIBEVENT2
 	struct event *sigint_ev;

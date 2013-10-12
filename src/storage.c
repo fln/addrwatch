@@ -3,7 +3,6 @@
 #include "mcache.h"
 #include "output_flatfile.h"
 #include "output_sqlite.h"
-#include "output_mysql.h"
 #include "output_shm.h"
 
 #include <stdlib.h>
@@ -132,10 +131,6 @@ void save_pairing(struct pkt *p)
 	if (cfg.data_fd)
 		output_flatfile_save(p, mac_str, ip_str);
 
-#if HAVE_LIBMYSQLCLIENT
-	if (cfg.mysql_conn)
-		output_mysql_save(p, mac_str, ip_str);
-#endif
 #if HAVE_LIBSQLITE3
 	if (cfg.sqlite_file)
 		output_sqlite_save(p, mac_str, ip_str);

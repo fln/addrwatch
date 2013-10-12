@@ -19,7 +19,6 @@
 #include "storage.h"
 #include "output_flatfile.h"
 #include "output_sqlite.h"
-#include "output_mysql.h"
 #include "output_shm.h"
 
 const char *argp_program_version = PACKAGE_STRING;
@@ -37,10 +36,6 @@ static struct argp_option options[] = {
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 	{"verbose",   'v', 0,      0, "Enable debug messages." },
-#if HAVE_LIBMYSQLCLIENT
-	{"mysql",     'm', "DB",      OPTION_ARG_OPTIONAL, "Output data to MySQL database DB (default is DB from ~/.my.cnf)." },
-	{"mysql-table", 1, "TBL",  0, "Use MySQL table TBL (default: " PACKAGE ")." },
-#endif
 #if HAVE_LIBSQLITE3
 	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
 	{"sqlite3-table", 2, "TBL",  0, "Use sqlite table TBL (default: " PACKAGE")." },
@@ -122,16 +117,6 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 	case 2:
 		cfg.sqlite_table = arg;
-		break;
-#endif
-#if HAVE_LIBMYSQLCLIENT
-	case 'm':
-		cfg.mysql_flag = 1;
-		if (arg)
-			cfg.mysql_db = arg;
-		break;
-	case 1:
-		cfg.mysql_table = arg;
 		break;
 #endif
 	case 'u':
@@ -346,7 +331,6 @@ void reload_cb(int fd, short events, void *arg)
 
 	output_flatfile_reload();
 	output_sqlite_reload();
-	output_mysql_reload();
 	output_shm_reload();
 }
 
@@ -495,11 +479,6 @@ int main(int argc, char *argv[])
 #if HAVE_LIBSQLITE3
 	cfg.sqlite_table = PACKAGE;
 #endif
-#if HAVE_LIBMYSQLCLIENT
-//	cfg.mysql_db = NULL;
-	cfg.mysql_table = PACKAGE;
-#endif
-
 	log_open(PACKAGE_NAME);
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 
@@ -544,7 +523,6 @@ int main(int argc, char *argv[])
 
 	output_flatfile_init();
 	output_sqlite_init();
-	output_mysql_init();
 	output_shm_init();
 
 	/* main loop */
@@ -555,7 +533,6 @@ int main(int argc, char *argv[])
 #endif
 
 	output_shm_close();
-	output_mysql_close();
 	output_sqlite_close();
 	output_flatfile_close();
 
