@@ -32,6 +32,8 @@ address blacklisting opetion '-b' can be used multiple times.";
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
 	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ")." },
+	{"shm-log-name",'m',"NUM", 0, "Change shared memory log name (default: " "DEFAULT_SHM_LOG_NAME" ")." },
+
 	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
 	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
 	{"verbose",   'v', 0,      0, "Enable debug messages." },
@@ -89,6 +91,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
 		cfg.shm_data.size = atoi(arg);
 		if (cfg.shm_data.size < 1)
 			cfg.shm_data.size = 1;
+		break;
+	case 'm':
+		cfg.shm_data.name = arg;
 		break;
 	case 'o':
 		cfg.data_file = arg;
@@ -472,6 +477,7 @@ int main(int argc, char *argv[])
 //	cfg.sqlite_file = NULL;
 //	cfg.uname = NULL;
 	cfg.shm_data.size = DEFAULT_SHM_LOG_SIZE;
+	cfg.shm_data.name = DEFAULT_SHM_LOG_NAME;
 #if HAVE_LIBSQLITE3
 	cfg.sqlite_table = PACKAGE;
 #endif

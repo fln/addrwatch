@@ -64,6 +64,7 @@ struct addrwatch_config {
 
 	struct {
 		struct shm_log *log;
+		char           *name;
 		uint64_t        size;
 	} shm_data;
 

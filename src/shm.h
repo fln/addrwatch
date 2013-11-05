@@ -4,7 +4,7 @@
 #include <net/if.h>
 #include <net/ethernet.h>
 
-#define ADDRWATCH_SHM_NAME "addrwatch-shm-log"
+#define DEFAULT_SHM_LOG_NAME "addrwatch-shm-log"
 #define MAGIC 0xc0decafe
 #define POLL_INTERVAL 50
 #define WAIT_INTERVAL 500

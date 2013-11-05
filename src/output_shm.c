@@ -15,7 +15,7 @@ void output_shm_init()
 
 	mem_size = sizeof(struct shm_log) + sizeof(struct shm_log_entry) * cfg.shm_data.size;
 
-	fd = shm_open(ADDRWATCH_SHM_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	fd = shm_open(cfg.shm_data.name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd == -1)
 		log_msg(LOG_ERR, "Error creating shared memory");
 

@@ -61,7 +61,7 @@ static inline struct shm_log *open_log(size_t *mem_size)
 	struct stat     info;
 	struct shm_log *addr;
 
-	fd = shm_open(ADDRWATCH_SHM_NAME, O_RDONLY, S_IRUSR | S_IWUSR);
+	fd = shm_open(DEFAULT_SHM_LOG_NAME, O_RDONLY, S_IRUSR | S_IWUSR);
 	if (fd == -1) {
 		perror("shm_open");
 		exit(EXIT_FAILURE);
