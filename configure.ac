@@ -36,7 +36,6 @@ AC_CHECK_HEADERS([argp.h], , [
 argp-standalone package specify argp include search path in CPPFLAGS \
 variable with -I option. Example: ./configure CPPFLAGS="-I/usr/local/include"])
 ])
-AC_CHECK_HEADERS([nananas.h])
 
 AC_ARG_ENABLE([sqlite3],
     AS_HELP_STRING([--enable-sqlite3], [Enable sqlite3 database output]),

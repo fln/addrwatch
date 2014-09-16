@@ -27,7 +27,7 @@ static char args_doc[] = "[INTERFACE1 INTERFACE2 ...]";
 static char doc[] =
 "Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
 \vIf no interfaces given, then first non loopback interface is used. IP \
-address blacklisting opetion '-b' can be used multiple times.";
+address blacklisting option '-b' can be used multiple times.";
 
 static struct argp_option options[] = {
 	{0, 0, 0, 0, "Options for data output:" },
