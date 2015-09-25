@@ -1,6 +1,5 @@
-===========
- addrwatch
-===========
+addrwatch
+=========
 
 This is a tool similar to arpwatch. It main purpose is to monitor network and 
 log discovered ethernet/ip pairings.
@@ -34,14 +33,16 @@ IPv6 it uses ICMPv6 Neighbor Discovery and (DAD) Duplicate Address Detection
 packets (Neighbor Solicitations, Neighbor Advertisements).
 
 The output file produced by addrwatch is similar to arpwatch. Example of
-addrwatch output file::
+addrwatch output file:
 
- 1329486484 eth0 0 00:aa:bb:cc:dd:ee fe80::2aa:bbff:fecc:ddee ND_NS
- 1329486485 eth0 0 00:aa:bb:cc:dd:ee 192.168.1.1 ARP_REQ
- 1329486485 eth0 0 00:aa:bb:ff:00:11 192.168.1.3 ARP_ACD
- 1329486486 eth0 7 00:11:11:11:11:11 fe80::211:11ff:fe11:1111 ND_NS
- 1329486487 eth0 7 00:22:22:22:22:22 fe80::222:22ff:fe22:2222 ND_DAD
- 1329486488 eth0 7 00:33:33:33:33:33 192.168.2.2 ARP_REQ
+```
+1329486484 eth0 0 00:aa:bb:cc:dd:ee fe80::2aa:bbff:fecc:ddee ND_NS
+1329486485 eth0 0 00:aa:bb:cc:dd:ee 192.168.1.1 ARP_REQ
+1329486485 eth0 0 00:aa:bb:ff:00:11 192.168.1.3 ARP_ACD
+1329486486 eth0 7 00:11:11:11:11:11 fe80::211:11ff:fe11:1111 ND_NS
+1329486487 eth0 7 00:22:22:22:22:22 fe80::222:22ff:fe22:2222 ND_DAD
+1329486488 eth0 7 00:33:33:33:33:33 192.168.2.2 ARP_REQ
+```
 
 For each pairing discovery event addrwatch produce timestamp, interface, 
 vlan_tag (untagged packets are marked with 0 vlan_tag), ethernet address, IP 
@@ -51,7 +52,7 @@ To prevent addrwatch from producing too many duplicate output data in active
 networks rate-imiting should be used. Read more in 'Ratelimit' section. 
 
 Installation
-============
+------------
 
 To compile addrwatch you mus have following shared libraries:
 
@@ -59,17 +60,21 @@ To compile addrwatch you mus have following shared libraries:
 * libevent
 * OPTIONAL libsqlite3
 
-To compile addrwatch with sqlite3 support::
+To compile addrwatch with sqlite3 support:
 
- $ ./configure --enable-sqlite3
- $ make
- $ make install
+```
+$ ./configure --enable-sqlite3
+$ make
+$ make install
+```
 
-To compile addrwatch without sqlite3 support::
+To compile addrwatch without sqlite3 support:
 
- $ ./configure
- $ make
- $ make install
+```
+$ ./configure
+$ make
+$ make install
+```
 
 If you do not want to install addrwatch to the system, skip the 'make install' 
 step. You can find compiled addrwatch binary in 'src' directory. This is the 
@@ -77,30 +82,36 @@ only file needed to run the program and the only file that would otherwise be
 installed to the system.
 
 Uninstallation
-==============
+--------------
 
 If you have used 'make install' to install addrwatch to a system you can remove
-with command::
+with command:
 
- $ make uninstall
+```
+$ make uninstall
+```
 
 In the sources directory.
 
 If you have already deleted the addrwatch sources, you can manually remove
-addrwatch from the system with command::
+addrwatch from the system with command:
 
- $ rm /usr/local/bin/addrwatch
- $ rm /usr/local/share/man/man8/addrwatch.8
+```
+$ rm /usr/local/bin/addrwatch
+$ rm /usr/local/share/man/man8/addrwatch.8
+```
 
 If you have specified --prefix argument to configure script substitute 
 /usr/local with the prefix path used.
 
 Usage
-=====
+-----
 
-To simply try out addrwatch start ir without any arguments::
+To simply try out addrwatch start ir without any arguments:
 
- $ addrwatch
+```
+$ addrwatch
+```
 
 When started like this addrwatch opens first non loopback interface and start
 logging event to the console without writing anything to disk. All events
@@ -112,21 +123,27 @@ addrwatch: ERR: No suitable interfaces found!
 
 It usually means you started addrwatch as normal user and do not have sufficient
 privileges to start sniffing on network interface. You should start addrwatch as
-root::
+root:
 
- $ sudo addrwatch
+```
+$ sudo addrwatch
+```
 
 You can specify which network interface or interfaces should be monitored by
-passing interface names as arguments. For example::
+passing interface names as arguments. For example:
 
- $ addrwatch eth0 tap0
+```
+$ addrwatch eth0 tap0
+```
 
-To find out about more usage options::
+To find out about more usage options:
 
- $ addrwatch --help
+```
+$ addrwatch --help
+```
 
 Ratelimiting
-============
+------------
 
 If used without ratelimiting addrwatch reports etherment/ip pairing everytime it
 gets usable ARP or IPv6 ND packet. In actively used networks it generates many
@@ -144,34 +161,32 @@ ratelimiting will not loose any information about pairing changes.
 
 For example if we have a stream of events:
 
-====  =================  ===========
-time  ethernet           ip
-====  =================  ===========
-0001  11:22:33:44:55:66  192.168.0.1
-0015  11:22:33:44:55:66  192.168.0.1
-0020  aa:bb:cc:dd:ee:ff  192.168.0.1
-0025  aa:bb:cc:dd:ee:ff  192.168.0.1
-0030  11:22:33:44:55:66  192.168.0.1
-0035  11:22:33:44:55:66  192.168.0.1
-0040  aa:bb:cc:dd:ee:ff  192.168.0.1
-0065  aa:bb:cc:dd:ee:ff  192.168.0.1
-====  =================  ===========
+| time | MAC address       | IP address
+|------|-------------------|------------
+| 0001 | 11:22:33:44:55:66 | 192.168.0.1
+| 0015 | 11:22:33:44:55:66 | 192.168.0.1
+| 0020 | aa:bb:cc:dd:ee:ff | 192.168.0.1
+| 0025 | aa:bb:cc:dd:ee:ff | 192.168.0.1
+| 0030 | 11:22:33:44:55:66 | 192.168.0.1
+| 0035 | 11:22:33:44:55:66 | 192.168.0.1
+| 0040 | aa:bb:cc:dd:ee:ff | 192.168.0.1
+| 0065 | aa:bb:cc:dd:ee:ff | 192.168.0.1
 
 With --ratelimit=100 we would get:
 
-====  =================  ===========
-0001  11:22:33:44:55:66  192.168.0.1
-0020  aa:bb:cc:dd:ee:ff  192.168.0.1
-0030  11:22:33:44:55:66  192.168.0.1
-0040  aa:bb:cc:dd:ee:ff  192.168.0.1
-====  =================  ===========
+| time | MAC address       | IP address
+|------|-------------------|------------
+| 0001 | 11:22:33:44:55:66 | 192.168.0.1
+| 0020 | aa:bb:cc:dd:ee:ff | 192.168.0.1
+| 0030 | 11:22:33:44:55:66 | 192.168.0.1
+| 0040 | aa:bb:cc:dd:ee:ff | 192.168.0.1
 
 Without such exception output would be:
 
-====  =================  ===========
-0001  11:22:33:44:55:66  192.168.0.1
-0020  aa:bb:cc:dd:ee:ff  192.168.0.1
-====  =================  ===========
+| time | MAC address       | IP address
+|------|-------------------|------------
+| 0001 | 11:22:33:44:55:66 | 192.168.0.1
+| 0020 | aa:bb:cc:dd:ee:ff | 192.168.0.1
 
 And we would loose information that address 192.168.0.1 was used by ethernet
 address 11:22:33:44:55:66 between 30-40th seconds.
@@ -201,7 +216,7 @@ specific IP address was used. There will be no difference between temporary IPv6
 addressed which was used once and statically configured permanent addresses.
 
 Event types
-===========
+-----------
 
 Ethernet/ip pairing discovery can be triggered by these types of events:
 
