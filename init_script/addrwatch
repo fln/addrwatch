@@ -1,0 +1,26 @@
+#! /bin/sh
+# /etc/init.d/addrwatch
+#
+
+# Some things that run always
+touch /var/lock/addrwatch
+params="-r=-1 public -m -c /root/addrwatch.cf -d -q"
+
+case "$1" in
+  start)
+    echo "Starting addrwatch.."
+    `addrwatch $params`
+    ps aux | grep -Ev "addrwatch start|grep" | grep --color "addrwatch"
+    ;;
+  stop)
+    echo "Stopping addrwatch.."
+    killall addrwatch
+    rm /var/lock/addrwatch
+    ;;
+  *)
+    echo "Usage: /etc/init.d/addrwatch {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
