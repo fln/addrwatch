@@ -27,7 +27,7 @@ INSERT INTO `%s`(\
 	`mac_address`,\
 	`ip_address`,\
 	`origin`\
-) VALUES(FROM_UNIXTIME(?), ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `updated`=NOW()";
+) VALUES(FROM_UNIXTIME(?), ?, ?, ?, UPPER(?), ?, ?) ON DUPLICATE KEY UPDATE `updated`=NOW()";
 
 void output_mysql_init()
 {
