@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `%s` (\
   `mac_address` varchar(17) NOT NULL,\
   `ip_address` varchar(42) NOT NULL,\
   `origin` varchar(8) NOT NULL,\
+  `ack` int(1) NOT NULL DEFAULT '0',\
   UNIQUE KEY `i_v_m_a` (`interface`,`vlan_tag`,`mac_address`,`ip_address`)\
 )";
 
@@ -27,7 +28,7 @@ INSERT INTO `%s`(\
 	`mac_address`,\
 	`ip_address`,\
 	`origin`\
-) VALUES(FROM_UNIXTIME(?), ?, ?, ?, UPPER(?), ?, ?) ON DUPLICATE KEY UPDATE `updated`=NOW()";
+) VALUES(FROM_UNIXTIME(?), ?, ?, ?, UPPER(?), ?, ?) ON DUPLICATE KEY UPDATE `updated`=NOW(), `ack`=0";
 
 void output_mysql_init()
 {
