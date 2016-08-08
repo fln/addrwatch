@@ -7,28 +7,28 @@
 
 static const char mysql_create_template[] = "\
 CREATE TABLE IF NOT EXISTS `%s` (\
-	`tstamp` timestamp NOT NULL,\
-	`hostname` varchar(256) NOT NULL,\
-	`interface` varchar(16) NOT NULL,\
-	`vlan_tag` int(11) NOT NULL,\
-	`mac_address` varchar(17) NOT NULL,\
-	`ip_address` varchar(42) NOT NULL,\
-	`origin` varchar(8) NOT NULL,\
-	KEY `interface` (`interface`),\
-	KEY `vlan_tag` (`vlan_tag`),\
-	KEY `interface_vlan_tag` (`interface`,`vlan_tag`)\
+  `created` datetime DEFAULT NULL,\
+  `updated` datetime DEFAULT NULL,\
+  `hostname` varchar(256) NOT NULL,\
+  `interface` varchar(16) NOT NULL,\
+  `vlan_tag` int(11) NOT NULL,\
+  `mac_address` varchar(17) NOT NULL,\
+  `ip_address` varchar(42) NOT NULL,\
+  `origin` varchar(8) NOT NULL,\
+  `ack` int(1) NOT NULL DEFAULT '0',\
+  UNIQUE KEY `i_v_m_a` (`interface`,`vlan_tag`,`mac_address`,`ip_address`)\
 )";
 
 static const char mysql_insert_template[] = "\
 INSERT INTO `%s`(\
-	`tstamp`,\
+	`created`,\
 	`hostname`, \
 	`interface`,\
 	`vlan_tag`,\
 	`mac_address`,\
 	`ip_address`,\
 	`origin`\
-) VALUES(FROM_UNIXTIME(?), ?, ?, ?, ?, ?, ?)";
+) VALUES(FROM_UNIXTIME(?), ?, ?, ?, UPPER(?), ?, ?) ON DUPLICATE KEY UPDATE `updated`=NOW(), `ack`=0";
 
 void output_mysql_init()
 {
