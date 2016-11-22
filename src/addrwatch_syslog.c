@@ -31,4 +31,5 @@ int main(int argc, char *argv[])
 	main_loop(process_entry, NULL);
 
 	closelog();
+	return 0;
 }

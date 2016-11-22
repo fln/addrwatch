@@ -23,5 +23,5 @@ void process_entry(struct shm_log_entry *e, void *arg)
 int main(int argc, char *argv[])
 {
 	main_loop(process_entry, NULL);
-
+	return 0;
 }

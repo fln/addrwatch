@@ -4,6 +4,7 @@
 #include "storage.h"
 
 #define MAC_STR_LEN     18
+#define ARR_TO_INT32(x) ((x[0]<<24) | (x[1]<<16) | (x[2]<<8) | (x[3]))
 
 void process_arp(struct pkt *p)
 {
@@ -13,7 +14,7 @@ void process_arp(struct pkt *p)
 
 	p->ip_len = IP4_LEN;
 
-	if (*(uint32_t *)arp->arp_spa == INADDR_ANY) {
+	if (ARR_TO_INT32(arp->arp_spa) == INADDR_ANY) {
 		p->l2_addr = arp->arp_sha;
 		p->ip_addr = arp->arp_tpa;
 		p->origin = ARP_ACD;
