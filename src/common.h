@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#define MAC_STR_LEN     18
+
 enum pkt_origin {
 	ARP_REQ,
 	ARP_REP,
@@ -15,7 +17,7 @@ enum pkt_origin {
 
 static inline void ether_ntoa_m(uint8_t addr[], char *str)
 {
-	sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",
+	snprintf(str, MAC_STR_LEN, "%02x:%02x:%02x:%02x:%02x:%02x",
 		addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
 }
 

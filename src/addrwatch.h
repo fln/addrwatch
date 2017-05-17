@@ -23,7 +23,6 @@
 #include "mcache.h"
 
 #define SNAP_LEN       9000
-#define MAC_STR_LEN    18
 
 struct iface_config {
 	char *name;

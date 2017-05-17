@@ -10,7 +10,6 @@
 #define MAGIC 0xc0decafe
 #define POLL_INTERVAL 50
 #define WAIT_INTERVAL 500
-#define MAC_STR_LEN 18
 
 struct shm_log_entry {
 	uint64_t timestamp;

@@ -3,7 +3,6 @@
 #include "base64.h"
 #include "storage.h"
 
-#define MAC_STR_LEN     18
 #define ARR_TO_INT32(x) ((x[0]<<24) | (x[1]<<16) | (x[2]<<8) | (x[3]))
 
 void process_arp(struct pkt *p)
