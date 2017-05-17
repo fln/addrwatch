@@ -2,7 +2,7 @@
 #include "addrwatch.h"
 
 #include <stdint.h>
-#include <net/ethernet.h>
+#include <netinet/if_ether.h>
 
 struct mcache_node {
 	uint8_t l2_addr[ETHER_ADDR_LEN];

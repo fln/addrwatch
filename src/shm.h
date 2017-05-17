@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/socket.h>
 #include <net/if.h>
-#include <net/ethernet.h>
+#include <netinet/in.h>
+#include <netinet/if_ether.h>
 
 #define DEFAULT_SHM_LOG_NAME "addrwatch-shm-log"
 #define MAGIC 0xc0decafe

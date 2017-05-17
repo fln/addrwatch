@@ -8,8 +8,5 @@ addrwatch_stdout_SOURCES = addrwatch_stdout.c shm_client.c shm_client.h
 addrwatch_syslog_SOURCES = addrwatch_syslog.c shm_client.c shm_client.h
 addrwatch_mysql_SOURCES = addrwatch_mysql.c shm_client.c shm_client.h util.c util.h
 
-addrwatch_LDADD = @LIBEVENT_LIBS@ -lrt
-addrwatch_stdout_LDADD = -lrt
-addrwatch_syslog_LDADD = -lrt
-addrwatch_mysql_LDADD = -lrt
+addrwatch_LDADD = @LIBEVENT_LIBS@
 

@@ -13,6 +13,7 @@ AC_SUBST([optional_modules])
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live])
+AC_CHECK_LIB([rt], [shm_open])
 
 PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], , [
 	AC_CHECK_LIB([event], [event_dispatch], , [

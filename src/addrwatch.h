@@ -11,7 +11,7 @@
 	#include <sqlite3.h>
 #endif
 
-#include <net/ethernet.h>
+#include <sys/socket.h>
 #include <net/if.h>
 
 #include <netinet/in.h>
