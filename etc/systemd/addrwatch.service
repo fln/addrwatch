@@ -1,0 +1,8 @@
+[Service]
+Type=forking
+#PrivateTmp=yes
+#User=nobody
+#Group=nobody
+# Run ExecStart with User=nobody / Group=nobody
+ExecStart=/etc/addrwatch/addrwatch.pl
+PIDFile=/var/run/addrwatch.pid
