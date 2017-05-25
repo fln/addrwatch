@@ -24,12 +24,12 @@ $pid = fork ();
 while(<ADDRWATCH>){
     chomp();
     if (m/ND_NS|ND_NA|ND_DAD/) {
-        $sender = Net::SMTP->new("mail.qarea.com");
-        $sender->mail('addrwatch@gate.qarea.org');
-        $sender->to('admin@qarea.com');
+        $sender = Net::SMTP->new("mail.dot.com");
+        $sender->mail('addrwatch@email.org');
+        $sender->to('admin@email.com');
         $sender->data();
-        $sender->datasend('From: addrwatch@gate.qarea.com'."\n");
-        $sender->datasend('To: admin@qarea.com'."\n");
+        $sender->datasend('From: addrwatch@email.com'."\n");
+        $sender->datasend('To: admin@email.com'."\n");
         $sender->datasend("Subject: ARP Anomaly detected\n");
         $sender->datasend("\n");
         $sender->datasend("$_\n");
