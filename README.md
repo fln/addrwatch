@@ -44,31 +44,66 @@ addrwatch output file:
 1329486488 eth0 7 00:33:33:33:33:33 192.168.2.2 ARP_REQ
 ```
 
-For each pairing discovery event addrwatch produce timestamp, interface, 
+For each pairing discovery event addrwatch produce time-stamp, interface, 
 vlan_tag (untagged packets are marked with 0 vlan_tag), ethernet address, IP 
-address and packet type seperated by spaces.
+address and packet type separated by spaces.
 
 To prevent addrwatch from producing too many duplicate output data in active
 networks rate-imiting should be used. Read more in 'Ratelimit' section. 
 
+Modular architecture v1.0
+-------------------------
+
+Since version v1.0 addrwatch was rewritten to be more modular. Different output
+modules can be configured and started independently from the main data
+collection service.
+
+Application architecture:
+
+```
+                                               +------------------+
+                                           +-->| addrwatch_stdout |
+                                           |   +------------------+
+                                           |
+                                           |   +------------------+
+             +-------------+               +-->| addrwatch_syslog |
+     network |             | shared memory |   +------------------+
+    --------->  addrwatch  +-------------->|
+             |             |               |   +------------------+
+             +-------------+               +-->| addrwatch_mysql  |
+                                               +------------------+
+```
+
+In the diagram boxes represent separate processes. Main **addrwach** process is
+responsible for listening on all configured network interfaces and dumping all
+data to a shared memory segment. Output modules have be be started separately,
+they poll shared memory segment for changes and writes data to a specific output
+format. Current version supports **stdout**, **syslog** and **mysql** output
+formats.
+
+**Note:** in addrwatch version v1.0 mysql output schema was changed to an more
+efficient one, by storing IP and mac addresses as binary values. To migrate
+existing addrwatch v0.8 installations to v1.0 there is a migration script
+*migrate_0.8_to_1.0.sql* in the main repository directory.
+
 Installation
 ------------
 
-To compile addrwatch you mus have following shared libraries:
+To compile addrwatch you must have following shared libraries:
 
 * libpcap
 * libevent
-* OPTIONAL libsqlite3
+* mysqlclient (optional)
 
-To compile addrwatch with sqlite3 support:
+To compile addrwatch with mysql support:
 
 ```
-$ ./configure --enable-sqlite3
+$ ./configure --enable-mysql
 $ make
 $ make install
 ```
 
-To compile addrwatch without sqlite3 support:
+To compile basic addrwatch version:
 
 ```
 $ ./configure
@@ -77,32 +112,8 @@ $ make install
 ```
 
 If you do not want to install addrwatch to the system, skip the 'make install' 
-step. You can find compiled addrwatch binary in 'src' directory. This is the 
-only file needed to run the program and the only file that would otherwise be
-installed to the system.
-
-Uninstallation
---------------
-
-If you have used 'make install' to install addrwatch to a system you can remove
-with command:
-
-```
-$ make uninstall
-```
-
-In the sources directory.
-
-If you have already deleted the addrwatch sources, you can manually remove
-addrwatch from the system with command:
-
-```
-$ rm /usr/local/bin/addrwatch
-$ rm /usr/local/share/man/man8/addrwatch.8
-```
-
-If you have specified --prefix argument to configure script substitute 
-/usr/local with the prefix path used.
+step. You can find main addrwatch binary and all output addrwatch_* binaries in
+'src' directory.
 
 Usage
 -----
@@ -140,6 +151,14 @@ To find out about more usage options:
 
 ```
 $ addrwatch --help
+```
+
+In production environment it is recommended to start main addrwatch binary in a
+daemon mode, and use separate output processes for logging data. Example:
+
+```
+$ ./addrwatch -d eth0
+$ ./addrwatch_stdout
 ```
 
 Ratelimiting
@@ -212,7 +231,7 @@ changes are still reported.
 
 It might look tempting to always use addrwatch with --ratelimit=-1 however by
 doing so you loose the information about when and for what period of time 
-specific IP address was used. There will be no difference between temporary IPv6 
+specific IP address was used. There will be no difference between temporary IPv6
 addressed which was used once and statically configured permanent addresses.
 
 Event types
