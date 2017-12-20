@@ -9,9 +9,10 @@
 
 void output_shm_init()
 {
-	int       fd;
-	size_t    mem_size;
-	void     *addr;
+	int         fd;
+	size_t      mem_size;
+	void       *addr;
+	struct stat s;
 
 	mem_size = sizeof(struct shm_log) + sizeof(struct shm_log_entry) * cfg.shm_data.size;
 
@@ -19,8 +20,10 @@ void output_shm_init()
 	if (fd == -1)
 		log_msg(LOG_ERR, "Error creating shared memory");
 
-	if (ftruncate(fd, mem_size) == -1)
-		log_msg(LOG_ERR, "Error setting shared memory size");
+	if (fstat(fd, &s) != 0 || s.st_size != mem_size) {
+		if (ftruncate(fd, mem_size) == -1)
+			log_msg(LOG_ERR, "Error setting shared memory size");
+	}
 
 	addr = mmap(NULL, mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (addr == MAP_FAILED)
