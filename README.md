@@ -112,8 +112,23 @@ $ make install
 ```
 
 If you do not want to install addrwatch to the system, skip the 'make install' 
-step. You can find main addrwatch binary and all output addrwatch_* binaries in
-'src' directory.
+step. You can find main addrwatch binary and all output addrwatch\_\* binaries
+in 'src' directory.
+
+Building from repo
+------------------
+
+If sources are obtained directly from the git repository (instead of
+distribution source package) project has to be bootstrapped using
+autoreconf/automake. A helper shell script `bottstrap.sh` is included in the
+repository for that. Note that bootstraping autotools project requires autoconf
+and automake to be available on the system.
+
+Example command to bootstrap autotools:
+
+```
+./bootstrap.sh
+```
 
 Usage
 -----
