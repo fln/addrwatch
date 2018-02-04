@@ -76,7 +76,7 @@ struct ip_node *blacklist_match(uint8_t *ip_addr, uint8_t addr_len)
 	return NULL;
 }
 
-inline uint16_t pkt_hash(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, uint16_t vlan_tag)
+static inline uint16_t pkt_hash(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, uint16_t vlan_tag)
 {
 	int i;
 	uint16_t sum;
