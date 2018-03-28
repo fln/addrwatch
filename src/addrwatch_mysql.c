@@ -232,7 +232,7 @@ void db_disconnect(struct ctx_s *data)
 	data->dbh = NULL;
 }
 
-inline void db_reconnect(struct ctx_s *data) {
+static inline void db_reconnect(struct ctx_s *data) {
 	while (1) {
 		if (data->dbh)
 			db_disconnect(data);
