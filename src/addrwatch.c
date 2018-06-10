@@ -327,7 +327,7 @@ void reload_cb(evutil_socket_t fd, short events, void *arg)
 void reload_cb(int fd, short events, void *arg)
 #endif
 {
-	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, sys_siglist[fd]);
+	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, strsignal(fd));
 	log_msg(LOG_DEBUG, "Reopening output files");
 
 	output_flatfile_reload();
@@ -341,7 +341,7 @@ void stop_cb(evutil_socket_t fd, short events, void *arg)
 void stop_cb(int fd, short events, void *arg)
 #endif
 {
-	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, sys_siglist[fd]);
+	log_msg(LOG_DEBUG, "Received signal (%d), %s", fd, strsignal(fd));
 #if HAVE_LIBEVENT2
 	event_base_loopbreak(cfg.eb);
 #else

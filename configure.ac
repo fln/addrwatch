@@ -58,9 +58,6 @@ AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h syslog.h unistd.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_PID_T
-AC_CHECK_DECLS([sys_siglist], [], [
-	AC_MSG_ERROR([Unable to find sys_siglist declaration.])
-], [[#include <signal.h>]])
 AC_TYPE_UINT32_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT8_T
