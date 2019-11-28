@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <strings.h>
 #include <unistd.h>
+#include <limits.h>
 #include <pwd.h>
 #include <grp.h>
 #include <argp.h>
