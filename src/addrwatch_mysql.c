@@ -193,8 +193,6 @@ void stmt_init(struct ctx_s *data)
 int db_connect(struct ctx_s *data)
 {
 	int        rc;
-	MYSQL_RES *res;
-	my_bool    t = 1;
 	
 	data->dbh = mysql_init(data->dbh);
 	if (!data->dbh)
@@ -275,9 +273,6 @@ void bind_init(struct ctx_s *data)
 void process_entry(struct shm_log_entry *e, void *arg)
 {
 	struct ctx_s *data;
-	int  rc;
-	char mac_str[MAC_STR_LEN];
-	char ip_str[INET6_ADDRSTRLEN];
 
 	data = (struct ctx_s *)arg;
 
@@ -314,13 +309,13 @@ int main(int argc, char *argv[])
 	int rc;
 	struct ctx_s ctx;
 	struct argp_option options[] = {
-		{"foreground",    'f', 0,      0, "Start as a foreground process" },
-		{"prefix",        'p', "STR",  0, "Prepend STR_ prefix to table names" },
-		{"config",        'c', "FILE",  0, "Use FILE for MySQL config" },
+		{"foreground",    'f', 0,      0, "Start as a foreground process", 0},
+		{"prefix",        'p', "STR",  0, "Prepend STR_ prefix to table names", 0},
+		{"config",        'c', "FILE",  0, "Use FILE for MySQL config", 0},
 		{ 0 }
 	};
 	char doc[] = "FIXME\vFIXME";
-	struct argp argp = { options, parse_opt, NULL, doc };
+	struct argp argp = { options, parse_opt, NULL, doc, NULL, NULL, NULL };
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.prefix = "";

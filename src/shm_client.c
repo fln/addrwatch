@@ -28,25 +28,6 @@ const char *pkt_origin_desc[] = {
 	NULL
 };
 
-static inline char *origin_to_string(uint8_t origin)
-{
-	switch (origin) {
-		case ARP_REQ:
-			return "ARP_REQ";
-		case ARP_REP:
-			return "ARP_REP";
-		case ARP_ACD:
-			return "ARP_ACD";
-		case ND_NS:
-			return "ND_NS";
-		case ND_NA:
-			return "ND_NA";
-		case ND_DAD:
-			return "ND_DAD";
-	}
-	return NULL;
-}
-
 static inline void close_log(void *addr, size_t mem_size)
 {
 	if (munmap(addr, mem_size) == -1) {

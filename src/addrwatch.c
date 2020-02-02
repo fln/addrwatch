@@ -30,34 +30,34 @@ static char doc[] =
 address blacklisting option '-b' can be used multiple times.";
 
 static struct argp_option options[] = {
-	{0, 0, 0, 0, "Options for data output:" },
-	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ")." },
-	{"shm-log-name",'m',"NUM", 0, "Change shared memory log name (default: " "DEFAULT_SHM_LOG_NAME" ")." },
+	{0, 0, 0, 0, "Options for data output:", 0},
+	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ").", 0},
+	{"shm-log-name",'m',"NUM", 0, "Change shared memory log name (default: " "DEFAULT_SHM_LOG_NAME" ").", 0},
 
-	{"output",    'o', "FILE", 0, "Output data to plain text FILE." },
-	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr." },
-	{"verbose",   'v', 0,      0, "Enable debug messages." },
+	{"output",    'o', "FILE", 0, "Output data to plain text FILE.", 0},
+	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr.", 0},
+	{"verbose",   'v', 0,      0, "Enable debug messages.", 0},
 #if HAVE_LIBSQLITE3
-	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE." },
-	{"sqlite3-table", 2, "TBL",  0, "Use sqlite table TBL (default: " PACKAGE")." },
+	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE.", 0},
+	{"sqlite3-table", 2, "TBL",  0, "Use sqlite table TBL (default: " PACKAGE").", 0},
 #endif
-	{0, 0, 0, 0, "Options for data filtering:" },
-	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets." },
-	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets." },
-	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP." },
-	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely. Default is 0." },
-	{"hashsize",  'H', "NUM",  0, "Size of ratelimit hash table. Default is 1 (no hash table)." },
-	{0, 0, 0, 0, "Misc options:" },
-	{"daemon",    'd', 0,      0, "Start as a daemon." },
-	{"pid",       'p', "FILE", 0, "Write process id to FILE." },
-	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces." },
-	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces." },
-	{"hostname",  'h', "HOSTNAME", 0, "Use HOSTNAME instead of real machine hostname." },
+	{0, 0, 0, 0, "Options for data filtering:", 0},
+	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets.", 0},
+	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets.", 0},
+	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP.", 0},
+	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely. Default is 0.", 0},
+	{"hashsize",  'H', "NUM",  0, "Size of ratelimit hash table. Default is 1 (no hash table).", 0},
+	{0, 0, 0, 0, "Misc options:", 0},
+	{"daemon",    'd', 0,      0, "Start as a daemon.", 0},
+	{"pid",       'p', "FILE", 0, "Write process id to FILE.", 0},
+	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces.", 0},
+	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces.", 0},
+	{"hostname",  'h', "HOSTNAME", 0, "Use HOSTNAME instead of real machine hostname.", 0},
 	{ 0 }
 };
 
 static error_t parse_opt (int key, char *arg, struct argp_state *state);
-static struct argp argp = { options, parse_opt, args_doc, doc };
+static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 struct addrwatch_config  cfg;
 

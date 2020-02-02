@@ -1,3 +1,4 @@
+AM_CFLAGS = -Wall -Wextra -Wno-unused-parameter
 EXTRA_PROGRAMS = addrwatch_mysql
 bin_PROGRAMS = addrwatch addrwatch_stdout addrwatch_syslog $(optional_modules)
 

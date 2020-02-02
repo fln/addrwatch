@@ -91,7 +91,7 @@ struct pkt {
 	uint8_t *raw_packet;
 
 	uint8_t *pos;
-	int len;
+	unsigned int len;
 
 	struct iface_config *ifc;
 	const struct pcap_pkthdr *pcap_header;

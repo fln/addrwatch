@@ -24,3 +24,5 @@ Makefile.in
 /src/addrwatch_mysql
 /src/addrwatch_stdout
 /src/addrwatch_syslog
+
+TAGS
