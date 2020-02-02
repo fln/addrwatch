@@ -130,10 +130,17 @@ Example command to bootstrap autotools:
 ./bootstrap.sh
 ```
 
+To automatically check source style before commiting use provided pre-commit git
+hook:
+
+```
+git config core.hooksPath .githooks
+```
+
 Usage
 -----
 
-To simply try out addrwatch start ir without any arguments:
+To simply try out addrwatch start it without any arguments:
 
 ```
 $ addrwatch

@@ -7,8 +7,8 @@
 #include <syslog.h>
 
 struct log_ctx_s {
-	int   syslog_only;
-	int   max_priority;
+	int syslog_only;
+	int max_priority;
 	char *ident;
 };
 
@@ -48,8 +48,8 @@ void log_syslog_only(int flag)
 
 void log_msg(int priority, const char *format, ...)
 {
-	va_list     pvar;
-	char	buffer[BUFSIZ];
+	va_list pvar;
+	char buffer[BUFSIZ];
 
 	//LOG_ERR
 	//LOG_WARNING
@@ -63,9 +63,9 @@ void log_msg(int priority, const char *format, ...)
 	if (priority > _ctx.max_priority)
 		return;
 
-	va_start (pvar, format);
+	va_start(pvar, format);
 	vsnprintf(buffer, sizeof(buffer), format, pvar);
-	va_end (pvar);
+	va_end(pvar);
 
 	syslog(priority, "%s: %s", log_level[priority], buffer);
 

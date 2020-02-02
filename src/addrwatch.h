@@ -1,14 +1,14 @@
 #pragma once
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include <pcap.h>
 #include <event.h>
 #include <time.h>
 #if HAVE_LIBSQLITE3
-	#include <sqlite3.h>
+#include <sqlite3.h>
 #endif
 
 #include <sys/socket.h>
@@ -22,7 +22,7 @@
 #include "common.h"
 #include "mcache.h"
 
-#define SNAP_LEN       9000
+#define SNAP_LEN 9000
 
 struct iface_config {
 	char *name;
@@ -52,25 +52,25 @@ struct addrwatch_config {
 	uint8_t verbose_flag;
 
 	char *uname;
-	long  hostname_len;
+	long hostname_len;
 	char *hostname;
 
 	struct ip_node *blacklist;
-	
+
 	char *pid_file;
 	char *data_file;
 	FILE *data_fd;
 
 	struct {
 		struct shm_log *log;
-		char           *name;
-		uint64_t        size;
+		char *name;
+		uint64_t size;
 	} shm_data;
 
 #if HAVE_LIBSQLITE3
 	char *sqlite_file;
 	char *sqlite_table;
-	sqlite3      *sqlite_conn;
+	sqlite3 *sqlite_conn;
 	sqlite3_stmt *sqlite_stmt;
 #endif
 	struct event_base *eb;
@@ -106,10 +106,10 @@ struct pkt {
 	struct nd_opt_hdr *opt_slla;
 	struct nd_opt_hdr *opt_tlla;
 
-	uint8_t         *l2_addr;
-	uint8_t         *ip_addr;
-	uint8_t          ip_len;
-	enum pkt_origin  origin;
+	uint8_t *l2_addr;
+	uint8_t *ip_addr;
+	uint8_t ip_len;
+	enum pkt_origin origin;
 };
 
 struct ip_node {

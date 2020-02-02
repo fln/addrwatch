@@ -3,7 +3,7 @@
 #include "base64.h"
 #include "storage.h"
 
-#define ARR_TO_INT32(x) ((x[0]<<24) | (x[1]<<16) | (x[2]<<8) | (x[3]))
+#define ARR_TO_INT32(x) ((x[0] << 24) | (x[1] << 16) | (x[2] << 8) | (x[3]))
 
 void process_arp(struct pkt *p)
 {
@@ -36,7 +36,6 @@ void process_arp(struct pkt *p)
 		save_pairing(p);
 		return;
 	}
-
 }
 
 void process_ns(struct pkt *p)
@@ -45,7 +44,7 @@ void process_ns(struct pkt *p)
 
 	if (IN6_IS_ADDR_UNSPECIFIED(&p->ip6->ip6_src)) {
 		p->l2_addr = p->ether->ether_shost;
-		p->ip_addr = (uint8_t *) &p->ns->nd_ns_target;
+		p->ip_addr = (uint8_t *)&p->ns->nd_ns_target;
 		p->origin = ND_DAD;
 		save_pairing(p);
 		return;
@@ -53,7 +52,7 @@ void process_ns(struct pkt *p)
 
 	if (p->opt_slla) {
 		p->l2_addr = (uint8_t *)(p->opt_slla + 1);
-		p->ip_addr = (uint8_t *) &p->ip6->ip6_src;
+		p->ip_addr = (uint8_t *)&p->ip6->ip6_src;
 		p->origin = ND_NS;
 		save_pairing(p);
 		return;
@@ -66,10 +65,9 @@ void process_na(struct pkt *p)
 
 	if (p->opt_tlla) {
 		p->l2_addr = (uint8_t *)(p->opt_tlla + 1);
-		p->ip_addr = (uint8_t *) &p->na->nd_na_target;
+		p->ip_addr = (uint8_t *)&p->na->nd_na_target;
 		p->origin = ND_NA;
 		save_pairing(p);
 		return;
 	}
 }
-

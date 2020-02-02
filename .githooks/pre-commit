@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Redirect output to stderr.
+exec 1>&2
+
+files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.[c|h]$')
+
+[ -z "$files" ] && exit 0
+
+rc=0
+for f in $files; do
+	diff -q <(clang-format --style=file "$f") "$f" > /dev/null
+	if [ $? -ne 0 ]; then
+		rc=1
+		echo "    clang-format --style=file -i '$f'"
+	fi
+done
+
+exit $rc

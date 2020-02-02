@@ -19,7 +19,6 @@ void process_entry(struct shm_log_entry *e, void *arg)
 
 	syslog(LOG_INFO, "%lu %s %u %s %s %s", e->timestamp, e->interface,
 		e->vlan_tag, mac_str, ip_str, pkt_origin_str[e->origin]);
-
 }
 
 int main(int argc, char *argv[])

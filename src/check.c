@@ -2,14 +2,14 @@
 #include "util.h"
 #include "base64.h"
 
-#define IN6_IS_ADDR_SN_MULTICAST(a,b) \
-	(  ((__const uint32_t *) (a))[0] == htonl (0xff020000)            \
-	&& ((__const uint32_t *) (a))[1] ==                 0             \
-	&& ((__const uint32_t *) (a))[2] == htonl (0x00000001)            \
-	&& ((__const uint8_t *) (a))[12] == 0xff                          \
-	&& ((__const uint8_t *) (a))[13] == ((__const uint8_t *) (b))[13] \
-	&& ((__const uint8_t *) (a))[14] == ((__const uint8_t *) (b))[14] \
-	&& ((__const uint8_t *) (a))[15] == ((__const uint8_t *) (b))[15] )
+#define IN6_IS_ADDR_SN_MULTICAST(a, b)                                          \
+	(((__const uint32_t *)(a))[0] == htonl(0xff020000)                      \
+		&& ((__const uint32_t *)(a))[1] == 0                            \
+		&& ((__const uint32_t *)(a))[2] == htonl(0x00000001)            \
+		&& ((__const uint8_t *)(a))[12] == 0xff                         \
+		&& ((__const uint8_t *)(a))[13] == ((__const uint8_t *)(b))[13] \
+		&& ((__const uint8_t *)(a))[14] == ((__const uint8_t *)(b))[14] \
+		&& ((__const uint8_t *)(a))[15] == ((__const uint8_t *)(b))[15])
 
 int check_arp(struct pkt *p)
 {
@@ -64,7 +64,6 @@ int check_ns(struct pkt *p)
 	ip6 = p->ip6;
 	rc = 0;
 
-
 	if (ip6->ip6_hlim != 255) {
 		pkt_dump = base64_encode_packet(p);
 		log_msg(LOG_WARNING, "%s: Malformed ICMPv6 NS packet. IPv6 Hop Limit is not 255. Packet dump: %s",
@@ -79,10 +78,9 @@ int check_ns(struct pkt *p)
 		rc = -1;
 	}
 
-
 	if (IN6_IS_ADDR_MULTICAST(&ns->nd_ns_target)) {
 		pkt_dump = base64_encode_packet(p);
-		ip6_ntoa((uint8_t *) &ns->nd_ns_target, ip6_addr);
+		ip6_ntoa((uint8_t *)&ns->nd_ns_target, ip6_addr);
 		log_msg(LOG_WARNING, "%s: Malformed ICMPv6 NS packet. Target address is multicast (%s). Packet dump: %s",
 			p->ifc->name, ip6_addr, pkt_dump);
 		rc = -1;
@@ -90,8 +88,8 @@ int check_ns(struct pkt *p)
 
 	if (IN6_IS_ADDR_UNSPECIFIED(&ip6->ip6_src)) {
 		if (!IN6_IS_ADDR_SN_MULTICAST(&ip6->ip6_dst, &ns->nd_ns_target)) {
-			ip6_ntoa((uint8_t *) &ip6->ip6_dst, ip6_addr);
-			ip6_ntoa((uint8_t *) &ns->nd_ns_target, ip6_addr2);
+			ip6_ntoa((uint8_t *)&ip6->ip6_dst, ip6_addr);
+			ip6_ntoa((uint8_t *)&ns->nd_ns_target, ip6_addr2);
 			pkt_dump = base64_encode_packet(p);
 			log_msg(LOG_WARNING, "%s: Malformed ICMPv6 NS packet. Src IP is unspecified and dst IP is not solicited-note multicast address (%s, %s). Packet dump: %s",
 				p->ifc->name, ip6_addr, ip6_addr2, pkt_dump);
@@ -135,14 +133,14 @@ int check_na(struct pkt *p)
 	}
 
 	if (IN6_IS_ADDR_MULTICAST(&na->nd_na_target)) {
-		ip6_ntoa((uint8_t *) &na->nd_na_target, ip6_addr);
+		ip6_ntoa((uint8_t *)&na->nd_na_target, ip6_addr);
 		pkt_dump = base64_encode_packet(p);
 		log_msg(LOG_WARNING, "%s: Malformed ICMPv6 NA packet. Target address is multicast (%s). Packet dump: %s",
 			p->ifc->name, ip6_addr, pkt_dump);
 		rc = -1;
 	}
 
-	if (IN6_IS_ADDR_MULTICAST(&ip6->ip6_dst) 
+	if (IN6_IS_ADDR_MULTICAST(&ip6->ip6_dst)
 		&& na->nd_na_flags_reserved & ND_NA_FLAG_SOLICITED) {
 		pkt_dump = base64_encode_packet(p);
 		log_msg(LOG_WARNING, "%s: Malformed ICMPv6 NA packet. Dst IP is multicast address, but Solicited flag is set. Packet dump: %s",

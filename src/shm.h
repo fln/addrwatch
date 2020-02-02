@@ -13,11 +13,11 @@
 
 struct shm_log_entry {
 	uint64_t timestamp;
-	uint8_t  interface[IFNAMSIZ];
-	uint8_t  ip_address[16];
-	uint8_t  mac_address[ETHER_ADDR_LEN];
-	uint8_t  ip_len;
-	uint8_t  origin;
+	uint8_t interface[IFNAMSIZ];
+	uint8_t ip_address[16];
+	uint8_t mac_address[ETHER_ADDR_LEN];
+	uint8_t ip_len;
+	uint8_t origin;
 	uint16_t vlan_tag;
 };
 
@@ -28,5 +28,4 @@ struct shm_log {
 	struct shm_log_entry data[];
 };
 
-typedef void (* entry_callback_t)(struct shm_log_entry *e, void *arg);
-
+typedef void (*entry_callback_t)(struct shm_log_entry *e, void *arg);

@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-#define IP4_LEN	4
+#define IP4_LEN 4
 #define IP6_LEN 16
 
 const char *pkt_origin_str[] = {
@@ -24,7 +24,7 @@ void blacklist_add(char *ip_str)
 	struct ip_node *ip;
 	int rc;
 
-	ip = (struct ip_node *) calloc(sizeof(struct ip_node), 1);
+	ip = (struct ip_node *)calloc(sizeof(struct ip_node), 1);
 
 	rc = inet_pton(AF_INET, ip_str, ip->ip_addr);
 	if (rc == 1) {
@@ -83,10 +83,10 @@ static inline uint16_t pkt_hash(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len,
 
 	sum = 0;
 	for (i = 0; i < 6; i += 2)
-		sum = sum ^ *(uint16_t *)(l2_addr+i);
+		sum = sum ^ *(uint16_t *)(l2_addr + i);
 
 	for (i = 0; i < len; i += 2)
-		sum = sum ^ *(uint16_t *)(ip_addr+i);
+		sum = sum ^ *(uint16_t *)(ip_addr + i);
 
 	sum = sum ^ vlan_tag;
 
@@ -108,7 +108,8 @@ void save_pairing(struct pkt *p)
 	if (cfg.ratelimit) {
 		hash = pkt_hash(p->l2_addr, p->ip_addr, p->ip_len, p->vlan_tag);
 		hash = hash % cfg.hashsize;
-		if(cache_lookup(p->l2_addr, p->ip_addr, p->ip_len, tstamp, p->vlan_tag, p->ifc->cache + hash))
+		if (cache_lookup(p->l2_addr, p->ip_addr, p->ip_len, tstamp,
+			    p->vlan_tag, p->ifc->cache + hash))
 			return;
 	}
 
@@ -120,8 +121,8 @@ void save_pairing(struct pkt *p)
 
 	output_shm_save(p, mac_str, ip_str);
 	if (!cfg.quiet) {
-		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name, p->vlan_tag, 
-			mac_str, ip_str, pkt_origin_str[p->origin]);
+		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name,
+			p->vlan_tag, mac_str, ip_str, pkt_origin_str[p->origin]);
 		fflush(stdout);
 	}
 
@@ -134,6 +135,6 @@ void save_pairing(struct pkt *p)
 #endif
 
 	if (cfg.ratelimit)
-		cache_add(p->l2_addr, p->ip_addr, p->ip_len, tstamp, p->vlan_tag, p->ifc->cache + hash);
+		cache_add(p->l2_addr, p->ip_addr, p->ip_len, tstamp,
+			p->vlan_tag, p->ifc->cache + hash);
 }
-

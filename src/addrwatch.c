@@ -24,51 +24,57 @@
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 static char args_doc[] = "[INTERFACE1 INTERFACE2 ...]";
-static char doc[] =
-"Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
+static char doc[] = "Keep track of ethernet/ip address pairings for IPv4 and IPv6.\
 \vIf no interfaces given, then first non loopback interface is used. IP \
 address blacklisting option '-b' can be used multiple times.";
 
-static struct argp_option options[] = {
-	{0, 0, 0, 0, "Options for data output:", 0},
-	{"shm-log-size",'L',"NUM", 0, "Change shared memory log size (default: " "DEFAULT_SHM_LOG_SIZE" ").", 0},
-	{"shm-log-name",'m',"NUM", 0, "Change shared memory log name (default: " "DEFAULT_SHM_LOG_NAME" ").", 0},
+static struct argp_option options[] = { { 0, 0, 0, 0, "Options for data output:", 0 },
+	{ "shm-log-size", 'L', "NUM", 0,
+		"Change shared memory log size (default: "
+		"DEFAULT_SHM_LOG_SIZE"
+		").",
+		0 },
+	{ "shm-log-name", 'm', "NUM", 0,
+		"Change shared memory log name (default: "
+		"DEFAULT_SHM_LOG_NAME"
+		").",
+		0 },
 
-	{"output",    'o', "FILE", 0, "Output data to plain text FILE.", 0},
-	{"quiet",     'q', 0,      0, "Suppress any output to stdout and stderr.", 0},
-	{"verbose",   'v', 0,      0, "Enable debug messages.", 0},
+	{ "output", 'o', "FILE", 0, "Output data to plain text FILE.", 0 },
+	{ "quiet", 'q', 0, 0, "Suppress any output to stdout and stderr.", 0 },
+	{ "verbose", 'v', 0, 0, "Enable debug messages.", 0 },
 #if HAVE_LIBSQLITE3
-	{"sqlite3",   's', "FILE", 0, "Output data to sqlite3 database FILE.", 0},
-	{"sqlite3-table", 2, "TBL",  0, "Use sqlite table TBL (default: " PACKAGE").", 0},
+	{ "sqlite3", 's', "FILE", 0, "Output data to sqlite3 database FILE.", 0 },
+	{ "sqlite3-table", 2, "TBL", 0, "Use sqlite table TBL (default: " PACKAGE ").", 0 },
 #endif
-	{0, 0, 0, 0, "Options for data filtering:", 0},
-	{"ipv4-only", '4', 0,      0, "Capture only IPv4 packets.", 0},
-	{"ipv6-only", '6', 0,      0, "Capture only IPv6 packets.", 0},
-	{"blacklist", 'b', "IP",   0, "Ignore pairings with specified IP.", 0},
-	{"ratelimit", 'r', "NUM",  0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely. Default is 0.", 0},
-	{"hashsize",  'H', "NUM",  0, "Size of ratelimit hash table. Default is 1 (no hash table).", 0},
-	{0, 0, 0, 0, "Misc options:", 0},
-	{"daemon",    'd', 0,      0, "Start as a daemon.", 0},
-	{"pid",       'p', "FILE", 0, "Write process id to FILE.", 0},
-	{"no-promisc",'P', 0,      0, "Disable promisc mode on network interfaces.", 0},
-	{"user",      'u', "USER", 0, "Suid to USER after opening network interfaces.", 0},
-	{"hostname",  'h', "HOSTNAME", 0, "Use HOSTNAME instead of real machine hostname.", 0},
-	{ 0 }
-};
+	{ 0, 0, 0, 0, "Options for data filtering:", 0 },
+	{ "ipv4-only", '4', 0, 0, "Capture only IPv4 packets.", 0 },
+	{ "ipv6-only", '6', 0, 0, "Capture only IPv6 packets.", 0 },
+	{ "blacklist", 'b', "IP", 0, "Ignore pairings with specified IP.", 0 },
+	{ "ratelimit", 'r', "NUM", 0, "Ratelimit duplicate ethernet/ip pairings to 1 every NUM seconds. If NUM = 0, ratelimiting is disabled. If NUM = -1, suppress duplicate entries indefinitely. Default is 0.",
+		0 },
+	{ "hashsize", 'H', "NUM", 0,
+		"Size of ratelimit hash table. Default is 1 (no hash table).", 0 },
+	{ 0, 0, 0, 0, "Misc options:", 0 },
+	{ "daemon", 'd', 0, 0, "Start as a daemon.", 0 },
+	{ "pid", 'p', "FILE", 0, "Write process id to FILE.", 0 },
+	{ "no-promisc", 'P', 0, 0, "Disable promisc mode on network interfaces.", 0 },
+	{ "user", 'u', "USER", 0, "Suid to USER after opening network interfaces.", 0 },
+	{ "hostname", 'h', "HOSTNAME", 0, "Use HOSTNAME instead of real machine hostname.", 0 },
+	{ 0 } };
 
-static error_t parse_opt (int key, char *arg, struct argp_state *state);
-static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL};
+static error_t parse_opt(int key, char *arg, struct argp_state *state);
+static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
-struct addrwatch_config  cfg;
+struct addrwatch_config cfg;
 
 static const char ip4_filter[] = "arp";
 static const char ip6_filter[] = "ip6 and not tcp and not udp and not esp and not ah";
 static const char def_filter[] = "ip6 and not tcp and not udp and not esp and not ah or arp";
 
-static error_t parse_opt (int key, char *arg, struct argp_state *state)
+static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-
-	switch(key) {
+	switch (key) {
 	case '4':
 		cfg.v4_flag = 1;
 		cfg.v6_flag = 0;
@@ -144,23 +150,22 @@ void drop_root(const char *uname)
 
 	pw = getpwnam(uname);
 
-	if(!pw)
+	if (!pw)
 		log_msg(LOG_ERR, "User %s not found", uname);
-	
-	if (initgroups(uname, pw->pw_gid) != 0
-		|| setgid(pw->pw_gid) != 0
+
+	if (initgroups(uname, pw->pw_gid) != 0 || setgid(pw->pw_gid) != 0
 		|| setuid(pw->pw_uid) != 0)
 		log_msg(LOG_ERR, "Unable to setuid to %s, uid=%d, gid=%d",
 			uname, pw->pw_uid, pw->pw_gid);
 
-	log_msg(LOG_DEBUG, "Changed user to %s, uid = %d, gid = %d",
-		uname, pw->pw_uid, pw->pw_gid);
+	log_msg(LOG_DEBUG, "Changed user to %s, uid = %d, gid = %d", uname,
+		pw->pw_uid, pw->pw_gid);
 }
 
 void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_t *packet)
 {
-	struct pkt	p;
-	int	rc;
+	struct pkt p;
+	int rc;
 
 	bzero(&p, sizeof(p));
 
@@ -169,7 +174,7 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 	p.pos = (uint8_t *)packet;
 	p.len = header->caplen;
 
-	p.ifc = (struct iface_config *) args;
+	p.ifc = (struct iface_config *)args;
 	p.pcap_header = header;
 
 	rc = parse_packet(&p);
@@ -179,7 +184,7 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 
 	if (p.arp) {
 		if (!check_arp(&p))
-		process_arp(&p);
+			process_arp(&p);
 	} else if (p.ns) {
 		if (!check_ns(&p))
 			process_ns(&p);
@@ -187,7 +192,6 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 		if (!check_na(&p))
 			process_na(&p);
 	}
-
 }
 
 #if HAVE_LIBEVENT2
@@ -196,14 +200,14 @@ void read_cb(evutil_socket_t fd, short events, void *arg)
 void read_cb(int fd, short events, void *arg)
 #endif
 {
-	struct pcap_pkthdr	header;
-	const uint8_t	*packet;
-	struct iface_config	*ifc;
+	struct pcap_pkthdr header;
+	const uint8_t *packet;
+	struct iface_config *ifc;
 
-	ifc = (struct iface_config *) arg;
+	ifc = (struct iface_config *)arg;
 	packet = pcap_next(ifc->pcap_handle, &header);
 
-	if(packet)
+	if (packet)
 		pcap_callback(arg, &header, packet);
 }
 
@@ -221,7 +225,7 @@ void add_iface(char *iface)
 	else
 		filter = def_filter;
 
-	ifc = (struct iface_config *) calloc(1, sizeof(struct iface_config));
+	ifc = (struct iface_config *)calloc(1, sizeof(struct iface_config));
 
 	ifc->name = iface;
 
@@ -233,54 +237,54 @@ void add_iface(char *iface)
 
 	rc = pcap_datalink(ifc->pcap_handle);
 	if (rc != DLT_EN10MB) {
-		log_msg(LOG_WARNING, "Skipping interface %s, invalid data link layer %s (%s).", 
-			iface,
-			pcap_datalink_val_to_name(rc),
+		log_msg(LOG_WARNING, "Skipping interface %s, invalid data link layer %s (%s).",
+			iface, pcap_datalink_val_to_name(rc),
 			pcap_datalink_val_to_description(rc));
 		goto error_pcap;
 	}
 
 	rc = pcap_compile(ifc->pcap_handle, &ifc->pcap_filter, filter, 0, 0);
 	if (rc == -1) {
-		log_msg(LOG_WARNING, "Skipping interface %s, %s",
-			iface, pcap_geterr(ifc->pcap_handle));
+		log_msg(LOG_WARNING, "Skipping interface %s, %s", iface,
+			pcap_geterr(ifc->pcap_handle));
 		goto error_pcap;
 	}
 
 	rc = pcap_setfilter(ifc->pcap_handle, &ifc->pcap_filter);
 	if (rc == -1) {
-		log_msg(LOG_WARNING, "Skipping iface %s, %s",
-			iface, pcap_geterr(ifc->pcap_handle));
+		log_msg(LOG_WARNING, "Skipping iface %s, %s", iface,
+			pcap_geterr(ifc->pcap_handle));
 		goto error_filter;
 	}
 
 	rc = pcap_fileno(ifc->pcap_handle);
 
 #if HAVE_LIBEVENT2
-	ifc->event = event_new(cfg.eb, rc, EV_READ|EV_PERSIST, read_cb, ifc);
-	if(!ifc->event)
+	ifc->event = event_new(cfg.eb, rc, EV_READ | EV_PERSIST, read_cb, ifc);
+	if (!ifc->event)
 		log_msg(LOG_ERR, "%s: event_new(...)", __FUNCTION__);
 
 	event_add(ifc->event, NULL);
 #else
-	event_set(&ifc->event, rc, EV_READ|EV_PERSIST, read_cb, ifc);
+	event_set(&ifc->event, rc, EV_READ | EV_PERSIST, read_cb, ifc);
 	event_add(&ifc->event, NULL);
 #endif
 
 	if (cfg.hashsize < 1 || cfg.hashsize > 65536)
-		log_msg(LOG_ERR, "%s: hash size (%d) must be >= 1 and <= 65536", __FUNCTION__, cfg.hashsize);
+		log_msg(LOG_ERR, "%s: hash size (%d) must be >= 1 and <= 65536",
+			__FUNCTION__, cfg.hashsize);
 
 	if (cfg.ratelimit) {
 		ifc->cache = calloc(cfg.hashsize, sizeof(*ifc->cache));
 		if (!ifc->cache)
-			log_msg(LOG_ERR, "%s: unable to allocate memory for hash cache", __FUNCTION__);
+			log_msg(LOG_ERR, "%s: unable to allocate memory for hash cache",
+				__FUNCTION__);
 	}
 
 	ifc->next = cfg.interfaces;
 	cfg.interfaces = ifc;
 
-	log_msg(LOG_DEBUG, "Opened interface %s (%s)",
-		iface,
+	log_msg(LOG_DEBUG, "Opened interface %s (%s)", iface,
 		pcap_datalink_val_to_description(pcap_datalink(ifc->pcap_handle)));
 
 	return;
@@ -295,8 +299,8 @@ error:
 
 struct iface_config *del_iface(struct iface_config *ifc)
 {
-	struct iface_config	*next;
-	int	i;
+	struct iface_config *next;
+	int i;
 
 	next = ifc->next;
 
@@ -311,14 +315,13 @@ struct iface_config *del_iface(struct iface_config *ifc)
 	if (ifc->cache) {
 		for (i = 0; i < cfg.hashsize; i++)
 			if (*(ifc->cache + i))
-				cache_prune(*(ifc->cache+i), ifc->cache+i);
+				cache_prune(*(ifc->cache + i), ifc->cache + i);
 		free(ifc->cache);
 	}
 
 	free(ifc);
-	
-	return next;
 
+	return next;
 }
 
 #if HAVE_LIBEVENT2
@@ -349,8 +352,6 @@ void stop_cb(int fd, short events, void *arg)
 #endif
 }
 
-
-
 void libevent_init()
 {
 #if HAVE_LIBEVENT2
@@ -363,26 +364,26 @@ void libevent_init()
 #endif
 
 #if HAVE_LIBEVENT2
-	cfg.sigint_ev = event_new(cfg.eb, SIGINT, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	cfg.sigint_ev = event_new(cfg.eb, SIGINT, EV_SIGNAL | EV_PERSIST, stop_cb, NULL);
 	event_add(cfg.sigint_ev, NULL);
 #else
-	event_set(&cfg.sigint_ev, SIGINT, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	event_set(&cfg.sigint_ev, SIGINT, EV_SIGNAL | EV_PERSIST, stop_cb, NULL);
 	event_add(&cfg.sigint_ev, NULL);
 #endif
 
 #if HAVE_LIBEVENT2
-	cfg.sigterm_ev = event_new(cfg.eb, SIGTERM, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	cfg.sigterm_ev = event_new(cfg.eb, SIGTERM, EV_SIGNAL | EV_PERSIST, stop_cb, NULL);
 	event_add(cfg.sigterm_ev, NULL);
 #else
-	event_set(&cfg.sigterm_ev, SIGTERM, EV_SIGNAL|EV_PERSIST, stop_cb, NULL);
+	event_set(&cfg.sigterm_ev, SIGTERM, EV_SIGNAL | EV_PERSIST, stop_cb, NULL);
 	event_add(&cfg.sigterm_ev, NULL);
 #endif
 
 #if HAVE_LIBEVENT2
-	cfg.sighup_ev = event_new(cfg.eb, SIGHUP, EV_SIGNAL|EV_PERSIST, reload_cb, NULL);
+	cfg.sighup_ev = event_new(cfg.eb, SIGHUP, EV_SIGNAL | EV_PERSIST, reload_cb, NULL);
 	event_add(cfg.sighup_ev, NULL);
 #else
-	event_set(&cfg.sighup_ev, SIGHUP, EV_SIGNAL|EV_PERSIST, reload_cb, NULL);
+	event_set(&cfg.sighup_ev, SIGHUP, EV_SIGNAL | EV_PERSIST, reload_cb, NULL);
 	event_add(&cfg.sighup_ev, NULL);
 #endif
 }
@@ -396,19 +397,17 @@ void libevent_close()
 
 	event_base_free(cfg.eb);
 #endif
-
 }
 
 void save_pid()
 {
-	FILE	*f;
+	FILE *f;
 
 	if (!cfg.pid_file)
 		return;
 
 	f = fopen(cfg.pid_file, "w");
-	if(!f)
-	{
+	if (!f) {
 		log_msg(LOG_ERR, "Unable to open pid file %s", cfg.pid_file);
 		return;
 	}
@@ -426,15 +425,15 @@ void del_pid()
 
 void daemonize()
 {
-//	pid_t pid, sid;
+	//	pid_t pid, sid;
 	if (cfg.daemon_flag) {
-		if (daemon(0, 0)) 
+		if (daemon(0, 0))
 			log_msg(LOG_ERR, "Failed to become a daemon: %s", strerror(errno));
 
 		log_syslog_only(1);
 	}
-	
-/*
+
+	/*
 	if (cfg.daemon_flag) {
 		pid = fork();
 
@@ -465,17 +464,16 @@ int main(int argc, char *argv[])
 	int optind;
 	int i;
 
-
 	bzero(&cfg, sizeof(cfg));
 
 	/* Default configuration */
-//	cfg.ratelimit = 0;
+	//	cfg.ratelimit = 0;
 	cfg.hashsize = 1;
-//	cfg.quiet = 0;
+	//	cfg.quiet = 0;
 	cfg.promisc_flag = 1;
-//	cfg.ratelimit = 0;
-//	cfg.sqlite_file = NULL;
-//	cfg.uname = NULL;
+	//	cfg.ratelimit = 0;
+	//	cfg.sqlite_file = NULL;
+	//	cfg.uname = NULL;
 	cfg.shm_data.size = DEFAULT_SHM_LOG_SIZE;
 	cfg.shm_data.name = DEFAULT_SHM_LOG_NAME;
 #if HAVE_LIBSQLITE3
@@ -495,9 +493,9 @@ int main(int argc, char *argv[])
 
 	libevent_init();
 
-
 	if (cfg.ratelimit > 0)
-		log_msg(LOG_DEBUG, "Ratelimiting duplicate entries to 1 per %d seconds", cfg.ratelimit);
+		log_msg(LOG_DEBUG, "Ratelimiting duplicate entries to 1 per %d seconds",
+			cfg.ratelimit);
 	else if (cfg.ratelimit == -1)
 		log_msg(LOG_DEBUG, "Duplicate entries supressed indefinitely");
 	else
@@ -538,8 +536,8 @@ int main(int argc, char *argv[])
 	output_sqlite_close();
 	output_flatfile_close();
 
-	for (ifc = cfg.interfaces; ifc != NULL; ifc = del_iface(ifc));
-
+	for (ifc = cfg.interfaces; ifc != NULL; ifc = del_iface(ifc))
+		;
 
 	libevent_close();
 	log_close();
