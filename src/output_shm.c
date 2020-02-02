@@ -3,9 +3,9 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 void output_shm_init()
 {
@@ -17,15 +17,18 @@ void output_shm_init()
 		   + sizeof(struct shm_log_entry) * cfg.shm_data.size;
 
 	fd = shm_open(cfg.shm_data.name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd == -1)
+	if (fd == -1) {
 		log_msg(LOG_ERR, "Error creating shared memory");
+	}
 
-	if (ftruncate(fd, mem_size) == -1)
+	if (ftruncate(fd, mem_size) == -1) {
 		log_msg(LOG_ERR, "Error setting shared memory size");
+	}
 
 	addr = mmap(NULL, mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if (addr == MAP_FAILED)
+	if (addr == MAP_FAILED) {
 		log_msg(LOG_ERR, "Error mapping shared memory");
+	}
 
 	close(fd);
 
@@ -43,10 +46,11 @@ void output_shm_save(struct pkt *p, char *mac_str, char *ip_str)
 	uint64_t idx;
 
 	log = cfg.shm_data.log;
-	if (log->magic != MAGIC)
+	if (log->magic != MAGIC) {
 		idx = 0;
-	else
+	} else {
 		idx = (log->last_idx + 1) % cfg.shm_data.size;
+	}
 
 	e = &log->data[idx];
 
@@ -60,12 +64,14 @@ void output_shm_save(struct pkt *p, char *mac_str, char *ip_str)
 
 	log->last_idx = idx;
 	log->size = cfg.shm_data.size;
-	if (log->magic != MAGIC)
+	if (log->magic != MAGIC) {
 		log->magic = MAGIC;
+	}
 }
 
 void output_shm_close()
 {
-	if (munmap(cfg.shm_data.log, cfg.shm_data.log->size) == -1)
+	if (munmap(cfg.shm_data.log, cfg.shm_data.log->size) == -1) {
 		log_msg(LOG_ERR, "Error unmapping shared memory");
+	}
 }

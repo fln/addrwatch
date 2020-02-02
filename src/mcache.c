@@ -14,8 +14,8 @@ void cache_prune(struct mcache_node *dead_node, struct mcache_node **cache)
 	if (dead_node == *cache) {
 		*cache = NULL;
 	} else {
-		for (node = *cache; node && node->next != dead_node; node = node->next)
-			;
+		for (node = *cache; node && node->next != dead_node; node = node->next) {
+		}
 
 		/* Assert that dead_node was found in the cache */
 		assert(node->next == dead_node);
@@ -37,8 +37,8 @@ void cache_del(struct mcache_node *dead_node, struct mcache_node **cache)
 	if (dead_node == *cache) {
 		*cache = dead_node->next;
 	} else {
-		for (node = *cache; node && node->next != dead_node; node = node->next)
-			;
+		for (node = *cache; node && node->next != dead_node; node = node->next) {
+		}
 
 		assert(node->next == dead_node);
 		node->next = dead_node->next;
@@ -55,8 +55,10 @@ void cache_add(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, time_t tstamp,
 
 	node = (struct mcache_node *)calloc(sizeof(*node), 1);
 
-	if (!node)
+	if (!node) {
 		log_msg(LOG_ERR, "%s: unable to allocate memory for new cache node", __FUNCTION__);
+		return;
+	}
 
 	memcpy(node->l2_addr, l2_addr, sizeof(node->l2_addr));
 	memcpy(node->ip_addr, ip_addr, len);
@@ -85,16 +87,19 @@ struct mcache_node *cache_lookup(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len
 			return NULL;
 		}
 
-		if (vlan_tag != node->vlan_tag)
+		if (vlan_tag != node->vlan_tag) {
 			continue;
+		}
 
-		if (len != node->addr_len)
+		if (len != node->addr_len) {
 			continue;
+		}
 
-		if (memcmp(ip_addr, node->ip_addr, len))
+		if (memcmp(ip_addr, node->ip_addr, len) != 0) {
 			continue;
+		}
 
-		if (memcmp(l2_addr, node->l2_addr, sizeof(node->l2_addr))) {
+		if (memcmp(l2_addr, node->l2_addr, sizeof(node->l2_addr)) != 0) {
 			cache_del(node, cache);
 			return NULL;
 		}

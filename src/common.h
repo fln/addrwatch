@@ -1,8 +1,9 @@
-#pragma once
+#ifndef COMMON_H
+#define COMMON_H
 
+#include <arpa/inet.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <arpa/inet.h>
 
 #define MAC_STR_LEN 18
 
@@ -30,3 +31,5 @@ static inline void ip6_ntoa(void *addr, char *str)
 {
 	inet_ntop(AF_INET6, addr, str, INET6_ADDRSTRLEN);
 }
+
+#endif

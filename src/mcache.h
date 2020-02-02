@@ -1,8 +1,11 @@
+#ifndef MCACHE_H
+#define MCACHE_H
+
 #pragma once
 #include "addrwatch.h"
 
-#include <stdint.h>
 #include <netinet/if_ether.h>
+#include <stdint.h>
 
 struct mcache_node {
 	uint8_t l2_addr[ETHER_ADDR_LEN];
@@ -20,3 +23,5 @@ void cache_add(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len, time_t tstamp,
 	uint16_t vlan_tag, struct mcache_node **cache);
 struct mcache_node *cache_lookup(uint8_t *l2_addr, uint8_t *ip_addr, uint8_t len,
 	time_t tstamp, uint16_t vlan_tag, struct mcache_node **cache);
+
+#endif

@@ -1,26 +1,25 @@
+#include <argp.h>
+#include <grp.h>
+#include <limits.h>
+#include <pwd.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <strings.h>
-#include <unistd.h>
-#include <limits.h>
-#include <pwd.h>
-#include <grp.h>
-#include <argp.h>
-
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "addrwatch.h"
-#include "parse.h"
 #include "check.h"
-#include "process.h"
-#include "util.h"
 #include "mcache.h"
-#include "storage.h"
 #include "output_flatfile.h"
-#include "output_sqlite.h"
 #include "output_shm.h"
+#include "output_sqlite.h"
+#include "parse.h"
+#include "process.h"
+#include "storage.h"
+#include "util.h"
 
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
@@ -92,12 +91,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		cfg.quiet = 1;
 		break;
 	case 'H':
-		cfg.hashsize = atoi(arg);
+		cfg.hashsize = strtol(arg, NULL, 10);
 		break;
 	case 'L':
-		cfg.shm_data.size = atoi(arg);
-		if (cfg.shm_data.size < 1)
+		cfg.shm_data.size = strtol(arg, NULL, 10);
+		if (cfg.shm_data.size < 1) {
 			cfg.shm_data.size = 1;
+		}
 		break;
 	case 'm':
 		cfg.shm_data.name = arg;
@@ -115,9 +115,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		cfg.quiet = 1;
 		break;
 	case 'r':
-		cfg.ratelimit = atoi(arg);
-		if (cfg.ratelimit < -1)
+		cfg.ratelimit = strtol(arg, NULL, 10);
+		if (cfg.ratelimit < -1) {
 			cfg.ratelimit = -1;
+		}
 		break;
 #if HAVE_LIBSQLITE3
 	case 's':
@@ -151,13 +152,16 @@ void drop_root(const char *uname)
 
 	pw = getpwnam(uname);
 
-	if (!pw)
+	if (!pw) {
 		log_msg(LOG_ERR, "User %s not found", uname);
+		return;
+	}
 
 	if (initgroups(uname, pw->pw_gid) != 0 || setgid(pw->pw_gid) != 0
-		|| setuid(pw->pw_uid) != 0)
+		|| setuid(pw->pw_uid) != 0) {
 		log_msg(LOG_ERR, "Unable to setuid to %s, uid=%d, gid=%d",
 			uname, pw->pw_uid, pw->pw_gid);
+	}
 
 	log_msg(LOG_DEBUG, "Changed user to %s, uid = %d, gid = %d", uname,
 		pw->pw_uid, pw->pw_gid);
@@ -168,7 +172,7 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 	struct pkt p;
 	int rc;
 
-	bzero(&p, sizeof(p));
+	memset(&p, 0, sizeof(p));
 
 	p.raw_packet = (uint8_t *)packet;
 
@@ -180,18 +184,22 @@ void pcap_callback(uint8_t *args, const struct pcap_pkthdr *header, const uint8_
 
 	rc = parse_packet(&p);
 
-	if (rc < 0)
+	if (rc < 0) {
 		return;
+	}
 
 	if (p.arp) {
-		if (!check_arp(&p))
+		if (!check_arp(&p)) {
 			process_arp(&p);
+		}
 	} else if (p.ns) {
-		if (!check_ns(&p))
+		if (!check_ns(&p)) {
 			process_ns(&p);
+		}
 	} else if (p.na) {
-		if (!check_na(&p))
+		if (!check_na(&p)) {
 			process_na(&p);
+		}
 	}
 }
 
@@ -208,8 +216,9 @@ void read_cb(int fd, short events, void *arg)
 	ifc = (struct iface_config *)arg;
 	packet = pcap_next(ifc->pcap_handle, &header);
 
-	if (packet)
+	if (packet) {
 		pcap_callback(arg, &header, packet);
+	}
 }
 
 void add_iface(char *iface)
@@ -219,12 +228,13 @@ void add_iface(char *iface)
 	struct iface_config *ifc;
 	int rc;
 
-	if (cfg.v4_flag)
+	if (cfg.v4_flag) {
 		filter = ip4_filter;
-	else if (cfg.v6_flag)
+	} else if (cfg.v6_flag) {
 		filter = ip6_filter;
-	else
+	} else {
 		filter = def_filter;
+	}
 
 	ifc = (struct iface_config *)calloc(1, sizeof(struct iface_config));
 
@@ -262,8 +272,9 @@ void add_iface(char *iface)
 
 #if HAVE_LIBEVENT2
 	ifc->event = event_new(cfg.eb, rc, EV_READ | EV_PERSIST, read_cb, ifc);
-	if (!ifc->event)
+	if (!ifc->event) {
 		log_msg(LOG_ERR, "%s: event_new(...)", __FUNCTION__);
+	}
 
 	event_add(ifc->event, NULL);
 #else
@@ -271,15 +282,17 @@ void add_iface(char *iface)
 	event_add(&ifc->event, NULL);
 #endif
 
-	if (cfg.hashsize < 1 || cfg.hashsize > 65536)
+	if (cfg.hashsize < 1 || cfg.hashsize > 65536) {
 		log_msg(LOG_ERR, "%s: hash size (%d) must be >= 1 and <= 65536",
 			__FUNCTION__, cfg.hashsize);
+	}
 
 	if (cfg.ratelimit) {
 		ifc->cache = calloc(cfg.hashsize, sizeof(*ifc->cache));
-		if (!ifc->cache)
+		if (!ifc->cache) {
 			log_msg(LOG_ERR, "%s: unable to allocate memory for hash cache",
 				__FUNCTION__);
+		}
 	}
 
 	ifc->next = cfg.interfaces;
@@ -314,9 +327,11 @@ struct iface_config *del_iface(struct iface_config *ifc)
 	log_msg(LOG_DEBUG, "Closed interface %s", ifc->name);
 
 	if (ifc->cache) {
-		for (i = 0; i < cfg.hashsize; i++)
-			if (*(ifc->cache + i))
+		for (i = 0; i < cfg.hashsize; i++) {
+			if (*(ifc->cache + i)) {
 				cache_prune(*(ifc->cache + i), ifc->cache + i);
+			}
+		}
 		free(ifc->cache);
 	}
 
@@ -358,8 +373,9 @@ void libevent_init()
 #if HAVE_LIBEVENT2
 	cfg.eb = event_base_new();
 
-	if (!cfg.eb)
+	if (!cfg.eb) {
 		log_msg(LOG_ERR, "%s: event_base_new() failed", __FUNCTION__);
+	}
 #else
 	event_init();
 #endif
@@ -404,10 +420,11 @@ void save_pid()
 {
 	FILE *f;
 
-	if (!cfg.pid_file)
+	if (!cfg.pid_file) {
 		return;
+	}
 
-	f = fopen(cfg.pid_file, "w");
+	f = fopen(cfg.pid_file, "we");
 	if (!f) {
 		log_msg(LOG_ERR, "Unable to open pid file %s", cfg.pid_file);
 		return;
@@ -418,8 +435,9 @@ void save_pid()
 
 void del_pid()
 {
-	if (!cfg.pid_file)
+	if (!cfg.pid_file) {
 		return;
+	}
 
 	unlink(cfg.pid_file);
 }
@@ -428,8 +446,9 @@ void daemonize()
 {
 	//	pid_t pid, sid;
 	if (cfg.daemon_flag) {
-		if (daemon(0, 0))
+		if (daemon(0, 0)) {
 			log_msg(LOG_ERR, "Failed to become a daemon: %s", strerror(errno));
+		}
 
 		log_syslog_only(1);
 	}
@@ -465,7 +484,7 @@ int main(int argc, char *argv[])
 	int optind;
 	int i;
 
-	bzero(&cfg, sizeof(cfg));
+	memset(&cfg, 0, sizeof(cfg));
 
 	/* Default configuration */
 	//	cfg.ratelimit = 0;
@@ -494,33 +513,39 @@ int main(int argc, char *argv[])
 
 	libevent_init();
 
-	if (cfg.ratelimit > 0)
+	if (cfg.ratelimit > 0) {
 		log_msg(LOG_DEBUG, "Ratelimiting duplicate entries to 1 per %d seconds",
 			cfg.ratelimit);
-	else if (cfg.ratelimit == -1)
+	} else if (cfg.ratelimit == -1) {
 		log_msg(LOG_DEBUG, "Duplicate entries supressed indefinitely");
-	else
-		log_msg(LOG_DEBUG, "Duplicate entries ratelimiting disabled");
-
-	if (cfg.promisc_flag)
-		log_msg(LOG_DEBUG, "PROMISC mode enabled");
-	else
-		log_msg(LOG_DEBUG, "PROMISC mode disabled");
-
-	if (argc > optind) {
-		for (i = optind; i < argc; i++)
-			add_iface(argv[i]);
 	} else {
-		dev = pcap_lookupdev(errbuf);
-		if (dev != NULL)
-			add_iface(dev);
+		log_msg(LOG_DEBUG, "Duplicate entries ratelimiting disabled");
 	}
 
-	if (!cfg.interfaces)
-		log_msg(LOG_ERR, "No suitable interfaces found!");
+	if (cfg.promisc_flag) {
+		log_msg(LOG_DEBUG, "PROMISC mode enabled");
+	} else {
+		log_msg(LOG_DEBUG, "PROMISC mode disabled");
+	}
 
-	if (cfg.uname)
+	if (argc > optind) {
+		for (i = optind; i < argc; i++) {
+			add_iface(argv[i]);
+		}
+	} else {
+		dev = pcap_lookupdev(errbuf);
+		if (dev != NULL) {
+			add_iface(dev);
+		}
+	}
+
+	if (!cfg.interfaces) {
+		log_msg(LOG_ERR, "No suitable interfaces found!");
+	}
+
+	if (cfg.uname) {
 		drop_root(cfg.uname);
+	}
 
 	output_flatfile_init();
 	output_sqlite_init();
@@ -537,8 +562,8 @@ int main(int argc, char *argv[])
 	output_sqlite_close();
 	output_flatfile_close();
 
-	for (ifc = cfg.interfaces; ifc != NULL; ifc = del_iface(ifc))
-		;
+	for (ifc = cfg.interfaces; ifc != NULL; ifc = del_iface(ifc)) {
+	}
 
 	libevent_close();
 	log_close();

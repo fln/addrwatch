@@ -21,12 +21,14 @@ int parse_arp(struct pkt *p)
 	p->len -= sizeof(struct ether_arp);
 
 	/* Skip non ARP packets */
-	if (ntohs(arp->ea_hdr.ar_hrd) != ARPHRD_ETHER)
+	if (ntohs(arp->ea_hdr.ar_hrd) != ARPHRD_ETHER) {
 		return -1;
+	}
 
 	/* Skip non IP ARP packets */
-	if (ntohs(arp->ea_hdr.ar_pro) != ETHERTYPE_IP)
+	if (ntohs(arp->ea_hdr.ar_pro) != ETHERTYPE_IP) {
 		return -1;
+	}
 
 	return 0;
 }
@@ -57,8 +59,9 @@ int parse_nd(struct pkt *p)
 	p->len -= sizeof(struct nd_neighbor_solicit);
 
 	while (1) {
-		if (p->len < sizeof(struct nd_opt_hdr))
+		if (p->len < sizeof(struct nd_opt_hdr)) {
 			break;
+		}
 
 		opt = (struct nd_opt_hdr *)p->pos;
 
@@ -119,14 +122,12 @@ int parse_ipv6(struct pkt *p)
 		case IPPROTO_FRAGMENT:
 		case IPPROTO_DSTOPTS:
 			if (p->len < 8) {
-				next_header = -1;
 				log_msg(LOG_WARNING, "%s: Error parsing IPv6 packet. Extension header is too small (%d of %d bytes)",
 					p->ifc->name, p->len, 8);
 				return -2;
 			}
 			ip6e = (struct ip6_ext *)p->pos;
 			if (p->len < (ip6e->ip6e_len + 1) * 8) {
-				next_header = -1;
 				log_msg(LOG_WARNING, "%s: Error parsing IPv6 packet. Extension header is too small (%d of %d bytes)",
 					p->ifc->name, p->len, (ip6e->ip6e_len + 1) * 8);
 				return -2;
@@ -141,8 +142,9 @@ int parse_ipv6(struct pkt *p)
 		}
 	}
 
-	if (next_header == -1)
+	if (next_header == -1) {
 		return -1;
+	}
 
 	if (p->len < sizeof(struct icmp6_hdr)) {
 		log_msg(LOG_WARNING, "%s: Error parsing ICMPv6 packet. Header is too small (%d of %d bytes)",

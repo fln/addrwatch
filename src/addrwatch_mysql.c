@@ -1,19 +1,20 @@
 #if HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
 
 #include "shm.h"
 #include "shm_client.h"
 #include "util.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <mysql/mysql.h>
 #include <argp.h>
+#include <mysql/mysql.h>
+
+#include <netinet/in.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define HOSTNAME_LEN 255
 #define STRINGIFY(s) #s
@@ -102,8 +103,9 @@ VALUES(\
 static inline void *malloc_c(size_t size)
 {
 	void *data = malloc(size);
-	if (!data)
+	if (!data) {
 		log_msg(LOG_ERR, "Error allocating memory");
+	}
 	return data;
 }
 
@@ -138,8 +140,9 @@ static void mysql_simple_query(MYSQL *dbh, const char *format, ...)
 	vsnprintf(buf, sizeof(buf), format, pvar);
 	va_end(pvar);
 
-	if (mysql_query(dbh, buf))
+	if (mysql_query(dbh, buf)) {
 		log_msg(LOG_ERR, "Error executing query: %s", mysql_error(dbh));
+	}
 }
 
 static void mysql_init_tables(MYSQL *dbh, char *prefix)
@@ -166,22 +169,25 @@ void stmt_init(struct ctx_s *data)
 	char *buf;
 
 	data->stmt = mysql_stmt_init(data->dbh);
-	if (!data->stmt)
+	if (!data->stmt) {
 		log_msg(LOG_ERR, "Error allocating MySQL statement object");
+	}
 
 	len = sizeof(sql_insert_log_template) + strlen(data->prefix);
 	buf = (char *)malloc_c(len);
 	snprintf(buf, len, sql_insert_log_template, data->prefix);
 
 	rc = mysql_stmt_prepare(data->stmt, buf, strnlen(buf, len));
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Error preparing MySQL statement object: %s",
 			mysql_stmt_error(data->stmt));
+	}
 	free(buf);
 
-	if (mysql_stmt_bind_param(data->stmt, data->bind))
+	if (mysql_stmt_bind_param(data->stmt, data->bind)) {
 		log_msg(LOG_ERR, "Error binding MySQL statement object: %s",
 			mysql_stmt_error(data->stmt));
+	}
 }
 
 int db_connect(struct ctx_s *data)
@@ -189,20 +195,23 @@ int db_connect(struct ctx_s *data)
 	int rc;
 
 	data->dbh = mysql_init(data->dbh);
-	if (!data->dbh)
+	if (!data->dbh) {
 		log_msg(LOG_ERR, "Error allocating MySQL object");
+	}
 
 	if (data->config_file) {
 		rc = mysql_options(data->dbh, MYSQL_READ_DEFAULT_FILE, data->config_file);
-		if (rc)
+		if (rc) {
 			log_msg(LOG_ERR, "Failed to read config file %s: %s",
 				data->config_file, mysql_error(data->dbh));
+		}
 	}
 
 	rc = mysql_options(data->dbh, MYSQL_READ_DEFAULT_GROUP, PACKAGE);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Failed to read [" PACKAGE "] section from my.cnf: %s",
 			mysql_error(data->dbh));
+	}
 
 	if (!mysql_real_connect(data->dbh, NULL, NULL, NULL, NULL, 0, NULL, 0)) {
 		log_msg(LOG_WARNING, "Failed to connect to database: %s",
@@ -229,10 +238,12 @@ void db_disconnect(struct ctx_s *data)
 static inline void db_reconnect(struct ctx_s *data)
 {
 	while (1) {
-		if (data->dbh)
+		if (data->dbh) {
 			db_disconnect(data);
-		if (!db_connect(data))
+		}
+		if (!db_connect(data)) {
 			break;
+		}
 		sleep(1);
 	}
 }
@@ -285,8 +296,9 @@ void process_entry(struct shm_log_entry *e, void *arg)
 	data->bind_data.origin = e->origin;
 
 	while (1) {
-		if (!mysql_stmt_execute(data->stmt))
+		if (!mysql_stmt_execute(data->stmt)) {
 			return;
+		}
 		log_msg(LOG_WARNING, "Error inserting data to MySQL database: %s\n",
 			mysql_stmt_error(data->stmt));
 
@@ -296,8 +308,9 @@ void process_entry(struct shm_log_entry *e, void *arg)
 
 static void get_hostname(char *hostname, unsigned long *len)
 {
-	if (gethostname(hostname, *len))
+	if (gethostname(hostname, *len)) {
 		log_msg(LOG_ERR, "Error gethostbyname failed");
+	}
 
 	*len = strnlen(hostname, *len);
 }
@@ -325,16 +338,18 @@ int main(int argc, char *argv[])
 	get_hostname(ctx.bind_data.hostname, &ctx.bind_data.hostname_len);
 
 	rc = mysql_library_init(0, NULL, NULL);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Error initializing MySQL library (%d)", rc);
+	}
 
 	bind_init(&ctx);
 	db_reconnect(&ctx);
 
 	if (!ctx.foreground) {
 		log_syslog_only(1);
-		if (daemon(0, 0))
+		if (daemon(0, 0)) {
 			log_msg(LOG_ERR, "Failed to become daemon: %s", strerror(errno));
+		}
 	}
 
 	main_loop(process_entry, &ctx);

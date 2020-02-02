@@ -1,9 +1,10 @@
-#include "process.h"
-#include "util.h"
 #include "base64.h"
+#include "process.h"
 #include "storage.h"
+#include "util.h"
 
-#define ARR_TO_INT32(x) ((x[0] << 24) | (x[1] << 16) | (x[2] << 8) | (x[3]))
+#define ARR_TO_INT32(x) \
+	(((x)[0] << 24) | ((x)[1] << 16) | ((x)[2] << 8) | ((x)[3]))
 
 void process_arp(struct pkt *p)
 {

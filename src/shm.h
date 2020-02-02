@@ -1,10 +1,11 @@
-#pragma once
+#ifndef SHM_H
+#define SHM_H
 
+#include <net/if.h>
+#include <netinet/if_ether.h>
+#include <netinet/in.h>
 #include <stdint.h>
 #include <sys/socket.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <netinet/if_ether.h>
 
 #define DEFAULT_SHM_LOG_NAME "addrwatch-shm-log"
 #define MAGIC 0xc0decafe
@@ -29,3 +30,5 @@ struct shm_log {
 };
 
 typedef void (*entry_callback_t)(struct shm_log_entry *e, void *arg);
+
+#endif

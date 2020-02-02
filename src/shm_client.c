@@ -1,12 +1,12 @@
 #include "shm_client.h"
 
 #include <fcntl.h>
+#include <net/if.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <net/if.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 const char *pkt_origin_str[] = { "ARP_REQ", "ARP_REP", "ARP_ACD", "ND_NS",
 	"ND_NA", "ND_DAD", NULL };
@@ -64,15 +64,17 @@ void main_loop(entry_callback_t cb, void *arg)
 
 	log = open_log(&mem_size);
 
-	while (log->magic != MAGIC)
+	while (log->magic != MAGIC) {
 		usleep(WAIT_INTERVAL * 1000);
+	}
 
 	size = log->size;
 	idx = log->last_idx;
 
 	while (1) {
-		if (log->magic != MAGIC)
+		if (log->magic != MAGIC) {
 			return;
+		}
 
 		if (size != log->size) {
 			close_log(log, mem_size);

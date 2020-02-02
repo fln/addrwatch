@@ -4,9 +4,10 @@
 void output_flatfile_init()
 {
 	if (cfg.data_file) {
-		cfg.data_fd = fopen(cfg.data_file, "a");
-		if (!cfg.data_fd)
+		cfg.data_fd = fopen(cfg.data_file, "ae");
+		if (!cfg.data_fd) {
 			log_msg(LOG_ERR, "Unable to open flat file %s", cfg.data_file);
+		}
 
 		log_msg(LOG_DEBUG, "Saving results to '%s' flat file", cfg.data_file);
 	}
@@ -30,6 +31,7 @@ void output_flatfile_save(struct pkt *p, char *mac_str, char *ip_str)
 
 void output_flatfile_close()
 {
-	if (cfg.data_fd)
+	if (cfg.data_fd) {
 		fclose(cfg.data_fd);
+	}
 }

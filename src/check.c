@@ -1,6 +1,6 @@
+#include "base64.h"
 #include "check.h"
 #include "util.h"
-#include "base64.h"
 
 #define IN6_IS_ADDR_SN_MULTICAST(a, b)                                          \
 	(((__const uint32_t *)(a))[0] == htonl(0xff020000)                      \

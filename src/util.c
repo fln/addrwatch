@@ -1,9 +1,8 @@
 #include "addrwatch.h"
 #include "util.h"
 
-#include <stdlib.h>
 #include <stdarg.h>
-
+#include <stdlib.h>
 #include <syslog.h>
 
 struct log_ctx_s {
@@ -57,11 +56,13 @@ void log_msg(int priority, const char *format, ...)
 	//LOG_INFO
 	//LOG_DEBUG
 
-	if (priority < LOG_EMERG || priority > LOG_DEBUG)
+	if (priority < LOG_EMERG || priority > LOG_DEBUG) {
 		return;
+	}
 
-	if (priority > _ctx.max_priority)
+	if (priority > _ctx.max_priority) {
 		return;
+	}
 
 	va_start(pvar, format);
 	vsnprintf(buffer, sizeof(buffer), format, pvar);
@@ -69,8 +70,9 @@ void log_msg(int priority, const char *format, ...)
 
 	syslog(priority, "%s: %s", log_level[priority], buffer);
 
-	if (!_ctx.syslog_only)
+	if (!_ctx.syslog_only) {
 		fprintf(stderr, "%s: %s: %s\n", _ctx.ident, log_level[priority], buffer);
+	}
 
 	if (priority <= LOG_ERR) {
 		log_close();

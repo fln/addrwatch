@@ -1,10 +1,10 @@
 #include "shm.h"
 #include "shm_client.h"
 
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
-#include <netinet/in.h>
 
 void process_entry(struct shm_log_entry *e, void *arg)
 {
@@ -12,10 +12,11 @@ void process_entry(struct shm_log_entry *e, void *arg)
 	char ip_str[INET6_ADDRSTRLEN];
 	ether_ntoa_m(e->mac_address, mac_str);
 
-	if (e->ip_len == 16)
+	if (e->ip_len == 16) {
 		ip6_ntoa(e->ip_address, ip_str);
-	else
+	} else {
 		ip4_ntoa(e->ip_address, ip_str);
+	}
 
 	syslog(LOG_INFO, "%lu %s %u %s %s %s", e->timestamp, e->interface,
 		e->vlan_tag, mac_str, ip_str, pkt_origin_str[e->origin]);

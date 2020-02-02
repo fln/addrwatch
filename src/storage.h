@@ -1,7 +1,8 @@
-#pragma once
+#ifndef STORAGE_H
+#define STORAGE_H
 
 #if HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
 
 #include "addrwatch.h"
@@ -19,3 +20,5 @@ void blacklist_free();
 struct ip_node *blacklist_match(uint8_t *ip_addr, uint8_t addr_len);
 
 void save_pairing(struct pkt *p);
+
+#endif

@@ -22,26 +22,30 @@ void output_sqlite_init()
 	char create_query[sizeof(sqlite_create_template) + 64];
 	char insert_query[sizeof(sqlite_insert_template) + 64];
 
-	if (!cfg.sqlite_file)
+	if (!cfg.sqlite_file) {
 		return;
+	}
 
 	snprintf(create_query, sizeof(create_query), sqlite_create_template, cfg.sqlite_table);
 	snprintf(insert_query, sizeof(insert_query), sqlite_insert_template, cfg.sqlite_table);
 
 	rc = sqlite3_open(cfg.sqlite_file, &cfg.sqlite_conn);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Unable to open sqlite3 database file %s", cfg.sqlite_file);
+	}
 
 	log_msg(LOG_DEBUG, "Using sqlite create query: %s", create_query);
 	rc = sqlite3_exec(cfg.sqlite_conn, create_query, 0, 0, 0);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Error creating table `addrwatch` in sqlite3 database");
+	}
 
 	log_msg(LOG_DEBUG, "Using sqlite insert query: %s", insert_query);
 	rc = sqlite3_prepare_v2(cfg.sqlite_conn, insert_query,
 		sizeof(insert_query), &cfg.sqlite_stmt, NULL);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Error preparing sqlite insert statement");
+	}
 
 	sqlite3_busy_timeout(cfg.sqlite_conn, 100);
 	log_msg(LOG_DEBUG, "Saving results to %s sqlite database", cfg.sqlite_file);
@@ -59,8 +63,9 @@ void output_sqlite_save(struct pkt *p, char *mac_str, char *ip_str)
 #if HAVE_LIBSQLITE3
 	int rc;
 
-	if (!cfg.sqlite_conn)
+	if (!cfg.sqlite_conn) {
 		return;
+	}
 
 	rc = sqlite3_bind_int64(cfg.sqlite_stmt, 1, p->pcap_header->ts.tv_sec);
 	rc += sqlite3_bind_text(cfg.sqlite_stmt, 2, p->ifc->name, -1, NULL);
@@ -68,8 +73,9 @@ void output_sqlite_save(struct pkt *p, char *mac_str, char *ip_str)
 	rc += sqlite3_bind_text(cfg.sqlite_stmt, 4, mac_str, -1, NULL);
 	rc += sqlite3_bind_text(cfg.sqlite_stmt, 5, ip_str, -1, NULL);
 	rc += sqlite3_bind_int(cfg.sqlite_stmt, 6, p->origin);
-	if (rc)
+	if (rc) {
 		log_msg(LOG_ERR, "Unable to bind values to sql statement");
+	}
 
 	rc = sqlite3_step(cfg.sqlite_stmt);
 	switch (rc) {
@@ -85,8 +91,9 @@ void output_sqlite_save(struct pkt *p, char *mac_str, char *ip_str)
 	}
 
 	rc = sqlite3_reset(cfg.sqlite_stmt);
-	if (rc && rc != SQLITE_BUSY)
+	if (rc && rc != SQLITE_BUSY) {
 		log_msg(LOG_ERR, "Error reseting sqlite prepared statement (%d)", rc);
+	}
 #endif
 }
 

@@ -1,26 +1,25 @@
-#pragma once
+#ifndef ADDRWATCH_H
+#define ADDRWATCH_H
 
 #if HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
+#include "common.h"
+#include "mcache.h"
 
-#include <pcap.h>
 #include <event.h>
-#include <time.h>
+#include <pcap.h>
 #if HAVE_LIBSQLITE3
 #include <sqlite3.h>
 #endif
 
-#include <sys/socket.h>
 #include <net/if.h>
-
-#include <netinet/in.h>
-#include <netinet/ip6.h>
 #include <netinet/icmp6.h>
 #include <netinet/if_ether.h>
-
-#include "common.h"
-#include "mcache.h"
+#include <netinet/in.h>
+#include <netinet/ip6.h>
+#include <sys/socket.h>
+#include <time.h>
 
 #define SNAP_LEN 9000
 
@@ -121,3 +120,5 @@ struct ip_node {
 
 extern struct addrwatch_config cfg;
 extern const char *pkt_origin_str[];
+
+#endif
