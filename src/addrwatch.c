@@ -22,6 +22,9 @@
 #include "storage.h"
 #include "util.h"
 
+#define STRINGIFY(s) #s
+#define STR(s) STRINGIFY(s)
+
 const char *argp_program_version = PACKAGE_STRING;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 static char args_doc[] = "[INTERFACE1 INTERFACE2 ...]";
@@ -31,15 +34,9 @@ address blacklisting option '-b' can be used multiple times.";
 
 static struct argp_option options[] = { { 0, 0, 0, 0, "Options for data output:", 0 },
 	{ "shm-log-size", 'L', "NUM", 0,
-		"Change shared memory log size (default: "
-		"DEFAULT_SHM_LOG_SIZE"
-		").",
-		0 },
+		"Change shared memory log size (default: " STR(DEFAULT_SHM_LOG_SIZE) ").", 0 },
 	{ "shm-log-name", 'm', "NUM", 0,
-		"Change shared memory log name (default: "
-		"DEFAULT_SHM_LOG_NAME"
-		").",
-		0 },
+		"Change shared memory log name (default: " DEFAULT_SHM_LOG_NAME ").", 0 },
 
 	{ "output", 'o', "FILE", 0, "Output data to plain text FILE.", 0 },
 	{ "quiet", 'q', 0, 0, "Suppress any output to stdout and stderr.", 0 },

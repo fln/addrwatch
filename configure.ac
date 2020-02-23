@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT([addrwatch], [1.0.1], [julius.kriukas@gmail.com])
+AC_INIT([addrwatch], [1.0.2], [julius.kriukas@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign check-news silent-rules -Werror])
 AC_CONFIG_SRCDIR([src/addrwatch.c])
 AM_CONFIG_HEADER([src/config.h])

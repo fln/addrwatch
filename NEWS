@@ -1,3 +1,7 @@
+Version 1.0.2
+
+  * Fixed "Error creating shared memory" issue for FreeBSD.
+
 Version 1.0.1
 
   * Minor portability fixes for compiling on OpenBSD.
