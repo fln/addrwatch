@@ -4,6 +4,7 @@
 #pragma once
 #include "addrwatch.h"
 
+#include <sys/types.h>
 #include <netinet/if_ether.h>
 #include <stdint.h>
 

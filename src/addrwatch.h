@@ -14,9 +14,9 @@
 #endif
 
 #include <net/if.h>
+#include <netinet/in.h>
 #include <netinet/icmp6.h>
 #include <netinet/if_ether.h>
-#include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <sys/socket.h>
 #include <time.h>

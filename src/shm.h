@@ -2,8 +2,8 @@
 #define SHM_H
 
 #include <net/if.h>
-#include <netinet/if_ether.h>
 #include <netinet/in.h>
+#include <netinet/if_ether.h>
 #include <stdint.h>
 #include <sys/socket.h>
 

@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/socket.h>
 
 #define MAC_STR_LEN 18
 
