@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
 	argp_parse(&argp, argc, argv, 0, &optind, 0);
 
 	if (!cfg.hostname) {
-		cfg.hostname_len = HOST_NAME_MAX;
+		cfg.hostname_len = HOST_NAME_MAX + 1;
 		cfg.hostname = (char *)calloc(cfg.hostname_len, sizeof(char));
 		gethostname(cfg.hostname, cfg.hostname_len);
 	}
