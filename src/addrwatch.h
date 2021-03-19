@@ -67,10 +67,12 @@ struct addrwatch_config {
 	} shm_data;
 
 #if HAVE_LIBSQLITE3
+	int sqlite_compact;
 	char *sqlite_file;
 	char *sqlite_table;
 	sqlite3 *sqlite_conn;
 	sqlite3_stmt *sqlite_stmt;
+	sqlite3_stmt *sqlite_stmt2;
 #endif
 	struct event_base *eb;
 #if HAVE_LIBEVENT2
