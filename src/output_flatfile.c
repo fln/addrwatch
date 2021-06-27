@@ -1,6 +1,8 @@
 #include "output_flatfile.h"
 #include "util.h"
 
+#include <inttypes.h>
+
 void output_flatfile_init()
 {
 	if (cfg.data_file) {
@@ -22,7 +24,7 @@ void output_flatfile_reload()
 void output_flatfile_save(struct pkt *p, char *mac_str, char *ip_str)
 {
 	if (cfg.data_fd) {
-		fprintf(cfg.data_fd, "%lu %s %u %s %s %s\n",
+		fprintf(cfg.data_fd, "%" PRId64 " %s %u %s %s %s\n",
 			p->pcap_header->ts.tv_sec, p->ifc->name, p->vlan_tag,
 			mac_str, ip_str, pkt_origin_str[p->origin]);
 		fflush(cfg.data_fd);

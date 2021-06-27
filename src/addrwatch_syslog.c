@@ -1,6 +1,7 @@
 #include "shm.h"
 #include "shm_client.h"
 
+#include <inttypes.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +19,7 @@ void process_entry(struct shm_log_entry *e, void *arg)
 		ip4_ntoa(e->ip_address, ip_str);
 	}
 
-	syslog(LOG_INFO, "%llu %s %u %s %s %s", e->timestamp, e->interface,
+	syslog(LOG_INFO, "%" PRId64 " %s %u %s %s %s", e->timestamp, e->interface,
 		e->vlan_tag, mac_str, ip_str, pkt_origin_str[e->origin]);
 }
 
