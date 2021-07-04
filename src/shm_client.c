@@ -2,7 +2,7 @@
 
 #include <fcntl.h>
 #include <net/if.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>

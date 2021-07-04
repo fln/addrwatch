@@ -16,7 +16,7 @@ void process_entry(struct shm_log_entry *e, void *arg)
 		ip4_ntoa(e->ip_address, ip_str);
 	}
 
-	printf("%lu %s %u %s %s %s\n", e->timestamp, e->interface, e->vlan_tag,
+	printf("%" PRIu64 " %s %" PRIu16 " %s %s %s\n", e->timestamp, e->interface, e->vlan_tag,
 		mac_str, ip_str, pkt_origin_str[e->origin]);
 }
 

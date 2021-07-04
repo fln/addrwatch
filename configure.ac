@@ -53,7 +53,7 @@ AC_ARG_ENABLE([mysql],
 )
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h syslog.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h inttypes.h stdlib.h syslog.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

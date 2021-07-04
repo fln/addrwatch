@@ -4,7 +4,7 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netinet/if_ether.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <sys/socket.h>
 
 #define DEFAULT_SHM_LOG_NAME "/addrwatch-shm-log"

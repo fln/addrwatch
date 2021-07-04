@@ -22,8 +22,8 @@ void output_flatfile_reload()
 void output_flatfile_save(struct pkt *p, char *mac_str, char *ip_str)
 {
 	if (cfg.data_fd) {
-		fprintf(cfg.data_fd, "%lu %s %u %s %s %s\n",
-			p->pcap_header->ts.tv_sec, p->ifc->name, p->vlan_tag,
+		fprintf(cfg.data_fd, "%" PRIu64 " %s %" PRIu16 " %s %s %s\n",
+			(uint64_t)p->pcap_header->ts.tv_sec, p->ifc->name, p->vlan_tag,
 			mac_str, ip_str, pkt_origin_str[p->origin]);
 		fflush(cfg.data_fd);
 	}

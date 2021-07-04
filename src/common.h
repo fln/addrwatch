@@ -2,7 +2,7 @@
 #define COMMON_H
 
 #include <arpa/inet.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/socket.h>
 
