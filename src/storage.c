@@ -129,7 +129,7 @@ void save_pairing(struct pkt *p)
 
 	output_shm_save(p, mac_str, ip_str);
 	if (!cfg.quiet) {
-		printf("%lu %s %u %s %s %s\n", tstamp, p->ifc->name,
+		printf("%" PRIu64 " %s %" PRIu16 " %s %s %s\n", (uint64_t)tstamp, p->ifc->name,
 			p->vlan_tag, mac_str, ip_str, pkt_origin_str[p->origin]);
 		fflush(stdout);
 	}

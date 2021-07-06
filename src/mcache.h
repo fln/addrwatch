@@ -6,7 +6,7 @@
 
 #include <sys/types.h>
 #include <netinet/if_ether.h>
-#include <stdint.h>
+#include <inttypes.h>
 
 struct mcache_node {
 	uint8_t l2_addr[ETHER_ADDR_LEN];

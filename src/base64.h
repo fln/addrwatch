@@ -2,7 +2,7 @@
 #define BASE64_H
 
 #include "addrwatch.h"
-#include <stdint.h>
+#include <inttypes.h>
 
 void base64_encode(const uint8_t *src, char *dst, int ssize, int dsize);
 char *base64_encode_packet(struct pkt *p);

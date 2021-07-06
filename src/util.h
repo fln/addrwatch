@@ -5,7 +5,7 @@
 #include "config.h"
 #endif
 
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 
 #include <syslog.h>

@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <pwd.h>
 #include <signal.h>
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
