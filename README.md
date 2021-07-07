@@ -274,3 +274,39 @@ Ethernet/ip pairing discovery can be triggered by these types of events:
 * ND_DAD - Duplicate Address Detection packet. Source MAC (Ethernet header)
   and target address (NS header) is saved.
 
+Compact database
+----------------
+
+This version of `addrwatch` features a compact database mode for SQL.  This
+is meant to minimize the amount of storage required by storing not all data
+sets, but only summaries.  The ordinary database scheme stores the
+following information (in parentheses, their SQL column identifiers are
+given):
+
+ * timestamp (`timestamp`)
+ * interface (`interface`)
+ * VLAN (`vlan_tag`)
+ * MAC address (`mac_address`)
+ * IP address (`ip_address`)
+ * event type (`origin`)
+
+One such entry is created per received event.  In contrast, in compact
+mode, the following information is stored:
+
+ * first-seen timestamp (`timestamp_first`)
+ * last-seen timestamp (`timestamp`)
+ * interface (`interface`)
+ * VLAN (`vlan_tag`)
+ * MAC address (`mac_address`)
+ * IP address (`ip_address`)
+ * event type (`origin`)
+ * count (`count`)
+
+The quintuple `(interface, VLAN, MAC address, IP addres, event type)` is
+used as a unique identifier.  If the quintuple has not been seen before, a
+new data row is inserted; if it _has_ been seen before, then just the
+last-seen timestamp and the count fields are updated accordingly.
+
+The SQL column names of the original (non-compact) are deliberately left
+unchanged so that any tools that work with the non-compact database format
+will likely still work (albeit with less information).

@@ -42,6 +42,7 @@ static struct argp_option options[] = { { 0, 0, 0, 0, "Options for data output:"
 	{ "quiet", 'q', 0, 0, "Suppress any output to stdout and stderr.", 0 },
 	{ "verbose", 'v', 0, 0, "Enable debug messages.", 0 },
 #if HAVE_LIBSQLITE3
+	{ "compact", 'c', 0, 0, "Use compact database scheme.", 0 },
 	{ "sqlite3", 's', "FILE", 0, "Output data to sqlite3 database FILE.", 0 },
 	{ "sqlite3-table", 2, "TBL", 0, "Use sqlite table TBL (default: " PACKAGE ").", 0 },
 #endif
@@ -119,6 +120,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 		}
 		break;
 #if HAVE_LIBSQLITE3
+	case 'c':
+		cfg.sqlite_compact = 1;
+		break;
 	case 's':
 		cfg.sqlite_file = arg;
 		break;
