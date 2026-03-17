@@ -476,8 +476,6 @@ void daemonize()
 
 int main(int argc, char *argv[])
 {
-	char errbuf[PCAP_ERRBUF_SIZE];
-	char *dev;
 	struct iface_config *ifc;
 	int optind;
 	int i;
@@ -531,9 +529,16 @@ int main(int argc, char *argv[])
 			add_iface(argv[i]);
 		}
 	} else {
-		dev = pcap_lookupdev(errbuf);
-		if (dev != NULL) {
-			add_iface(dev);
+		char errbuf[PCAP_ERRBUF_SIZE];
+		pcap_if_t *devs = NULL;
+		if (pcap_findalldevs(&devs, errbuf) != 0)
+		{
+			log_msg(LOG_ERR, errbuf);
+		}
+		if (devs != NULL)
+		{
+			add_iface(devs[0].name);
+			pcap_freealldevs(devs);
 		}
 	}
 
