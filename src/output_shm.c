@@ -71,7 +71,10 @@ void output_shm_save(struct pkt *p, char *mac_str, char *ip_str)
 
 void output_shm_close()
 {
-	if (munmap(cfg.shm_data.log, cfg.shm_data.log->size) == -1) {
-		log_msg(LOG_ERR, "Error unmapping shared memory");
+	size_t mem_size = sizeof(struct shm_log)
+                   + sizeof(struct shm_log_entry) * cfg.shm_data.size;
+
+	if (munmap(cfg.shm_data.log, mem_size) == -1) {
+		log_msg(LOG_ERR, "Error unmapping shared memory: %s", strerror(errno));
 	}
 }
