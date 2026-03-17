@@ -127,7 +127,7 @@ int parse_ipv6(struct pkt *p)
 				return -2;
 			}
 			ip6e = (struct ip6_ext *)p->pos;
-			if (p->len < (ip6e->ip6e_len + 1) * 8) {
+			if (p->len < ((unsigned int)ip6e->ip6e_len + 1) * 8) {
 				log_msg(LOG_WARNING, "%s: Error parsing IPv6 packet. Extension header is too small (%d of %d bytes)",
 					p->ifc->name, p->len, (ip6e->ip6e_len + 1) * 8);
 				return -2;
