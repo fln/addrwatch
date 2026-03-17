@@ -2,7 +2,7 @@ AC_PREREQ([2.68])
 AC_INIT([addrwatch], [1.0.2], [julius.kriukas@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign check-news silent-rules -Werror])
 AC_CONFIG_SRCDIR([src/addrwatch.c])
-AM_CONFIG_HEADER([src/config.h])
+AC_CONFIG_HEADERS([src/config.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -14,7 +14,13 @@ AC_SUBST([optional_modules])
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live], :)
 AC_CHECK_LIB([rt], [shm_open])
+AC_CHECK_LIB([mysql])
 
+AC_CHECK_PROG([PKGCONFIG],[pkgconf],[yes],[no])
+AS_IF([test "${PKGCONFIG}" = "no" ],[
+    AC_MSG_ERROR([pkgconf not installed; required for dependency managmeent.])
+  ]
+)
 PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], , [
 	AC_CHECK_LIB([event], [event_dispatch], , [
 		AC_MSG_ERROR([Please install libevent-1.4 or libevent-2.0])
@@ -24,7 +30,6 @@ PKG_CHECK_MODULES(LIBEVENT, [libevent >= 1.4], , [
 PKG_CHECK_MODULES(LIBEVENT2, [libevent >= 2.0], [
 	AC_DEFINE([HAVE_LIBEVENT2], 1, [Define to 1 if you have libevent2])
 ], [ ])
-
 
 AC_SEARCH_LIBS([argp_parse], [argp], , [
 	AC_MSG_ERROR([Your libc is missing argp_parse funcion. If you \
@@ -36,6 +41,9 @@ AC_CHECK_HEADERS([argp.h], , [
 	AC_MSG_ERROR([Unable to find argp.h header. If you are using \
 argp-standalone package specify argp include search path in CPPFLAGS \
 variable with -I option. Example: ./configure CPPFLAGS="-I/usr/local/include"])
+])
+AC_CHECK_HEADERS([pcap.h], , [
+	AC_MSG_ERROR([Unable to find pcap.h header. Please install libpcap-dev"])
 ])
 
 AC_ARG_ENABLE([sqlite3],
@@ -53,7 +61,7 @@ AC_ARG_ENABLE([mysql],
 )
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h syslog.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h stdlib.h syslog.h unistd.h mysql/mysql.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
