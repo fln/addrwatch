@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 
+#if HAVE_LIBSQLITE3
 static const char sqlite_create_template[] = "\
 CREATE TABLE IF NOT EXISTS %s(\
 timestamp UNSIGNED BIG INT, \
@@ -14,6 +15,7 @@ origin TINYINT\
 );";
 
 static const char sqlite_insert_template[] = "INSERT INTO %s VALUES(?, ?, ?, ?, ?, ?);";
+#endif
 
 void output_sqlite_init()
 {
